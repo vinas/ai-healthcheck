@@ -1,30 +1,9 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { COOKIE_NAME } from "@/lib/auth";
-
-async function logout() {
-  "use server";
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
-  redirect("/admin/login");
-}
+import AdminHeader from "@/components/admin/admin-header";
 
 export default function AdminHome() {
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border px-8 py-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-lg font-semibold text-foreground">
-            AI-Healthcheck — Admin
-          </h1>
-          <form action={logout}>
-            <Button type="submit" variant="outline" size="sm">
-              Sign out
-            </Button>
-          </form>
-        </div>
-      </header>
+      <AdminHeader />
       <div className="flex flex-1 items-center justify-center">
         <p className="text-muted-foreground">No content yet.</p>
       </div>
