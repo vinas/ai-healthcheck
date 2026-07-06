@@ -17,4 +17,15 @@ import { buttonVariants } from "@/components/ui/button";
 
 <Link href="/somewhere" className={buttonVariants()}>Label</Link>
 ```
+
+# `middleware.ts` is deprecated — use `proxy.ts`
+
+Next.js 16 renamed the middleware file convention. The file must be named `proxy.ts` (at the project root) and export a function named `proxy`, not `middleware`.
+
+```ts
+// proxy.ts
+export async function proxy(req: NextRequest) { ... }
+```
+
+Never create or reference `middleware.ts` in this project.
 <!-- END:nextjs-agent-rules -->
