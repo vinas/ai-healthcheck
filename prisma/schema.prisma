@@ -8,17 +8,15 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  name     String  @db.VarChar(50)
-  email    String  @unique @db.VarChar(80)
-  password String  @db.VarChar(64)
-  logins   Login[]
+  id       Int    @id @default(autoincrement())
+  name     String @db.VarChar(50)
+  email    String @unique @db.VarChar(80)
+  password String @db.VarChar(64)
 }
 
 model Login {
   id      Int      @id @default(autoincrement())
-  userId  Int
-  user    User     @relation(fields: [userId], references: [id])
+  email   String   @db.VarChar(80)
   date    DateTime @default(now())
   success Boolean
 }
