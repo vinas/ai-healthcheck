@@ -1,5 +1,6 @@
 import AdminHeader from "@/components/admin/admin-header";
 import AddClientForm from "@/components/admin/add-client-form";
+import ClientList from "@/components/admin/client-list";
 
 export default function AdminHome() {
   return (
@@ -11,7 +12,7 @@ export default function AdminHome() {
           <h2 className="mb-4 text-lg font-semibold text-foreground">
             Clients
           </h2>
-          <p className="text-muted-foreground">Client list will appear here.</p>
+          <ClientList />
         </div>
       </div>
     </main>

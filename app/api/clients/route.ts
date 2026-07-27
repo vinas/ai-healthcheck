@@ -2,6 +2,64 @@ import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { verifyToken, COOKIE_NAME } from "@/lib/auth";
+import type { Prisma } from "@prisma/client";
+
+const VALID_SORT_FIELDS = [
+  "id", "name", "contactPersonName", "contactPersonEmail",
+  "contactPersonPhone", "uniqueKey", "keyUsedAt",
+] as const;
+type SortField = typeof VALID_SORT_FIELDS[number];
+
+export async function GET(req: NextRequest) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(COOKIE_NAME)?.value;
+
+    if (!token) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    await verifyToken(token);
+
+    const params = req.nextUrl.searchParams;
+    const search = params.get("search")?.trim() ?? "";
+    const rawSortBy = params.get("sortBy") ?? "id";
+    const sortBy: SortField = VALID_SORT_FIELDS.includes(rawSortBy as SortField)
+      ? (rawSortBy as SortField)
+      : "id";
+    const sortDir = params.get("sortDir") === "desc" ? "desc" : "asc";
+    const page = Math.max(1, parseInt(params.get("page") ?? "1", 10) || 1);
+    const rawPageSize = params.get("pageSize") ?? "10";
+    const isAll = rawPageSize === "all";
+    const pageSize = isAll ? 0 : Math.max(1, parseInt(rawPageSize, 10) || 10);
+
+    const where: Prisma.ClientWhereInput = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" } },
+            { contactPersonName: { contains: search, mode: "insensitive" } },
+            { contactPersonEmail: { contains: search, mode: "insensitive" } },
+            { contactPersonPhone: { contains: search, mode: "insensitive" } },
+          ],
+        }
+      : {};
+
+    const skip = isAll ? undefined : (page - 1) * pageSize;
+    const take = isAll ? undefined : pageSize;
+
+    const [data, total] = await prisma.$transaction([
+      prisma.client.findMany({ where, orderBy: { [sortBy]: sortDir }, skip, take }),
+      prisma.client.count({ where }),
+    ]);
+
+    const totalPages = isAll ? 1 : Math.ceil(total / pageSize);
+
+    return NextResponse.json({ data, total, page: isAll ? 1 : page, pageSize: isAll ? total : pageSize, totalPages });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
 
 export async function POST(req: NextRequest) {
   try {
