@@ -20,7 +20,7 @@ export default function RootLayout({
     <html lang="en" className={cn("font-sans", inter.variable)}>
       <body>
         {children}
-        <Toaster />
+        <Toaster position="top-left" richColors expand />
       </body>
     </html>
   );
