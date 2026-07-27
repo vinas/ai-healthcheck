@@ -1,13 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,11 +23,11 @@ export default function LoginPage() {
       });
 
       if (res.ok) {
-        router.push("/admin");
-      } else {
-        const data = await res.json();
-        toast.error(data.error ?? "Login failed. Please try again.");
+        window.location.href = "/admin";
+        return;
       }
+      const data = await res.json();
+      toast.error(data.error ?? "Login failed. Please try again.");
     } catch {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
