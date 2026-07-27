@@ -20,3 +20,13 @@ model Login {
   date    DateTime @default(now())
   success Boolean
 }
+
+model Client {
+  id                 Int       @id @default(autoincrement())
+  name               String    @db.VarChar(100)
+  contactPersonName  String?   @db.VarChar(50)
+  contactPersonEmail String?   @db.VarChar(100)
+  contactPersonPhone String?   @db.VarChar(15)
+  uniqueKey          String    @unique @default(uuid()) @db.Uuid
+  keyUsedAt          DateTime?
+}
