@@ -30,3 +30,36 @@ model Client {
   uniqueKey          String    @unique @default(uuid()) @db.Uuid
   keyUsedAt          DateTime?
 }
+
+model QuestionType {
+  id        Int        @id @default(autoincrement())
+  label     String     @db.VarChar(30)
+  questions Question[]
+}
+
+model Stage {
+  id        Int        @id @default(autoincrement())
+  label     String     @db.VarChar(50)
+  questions Question[]
+}
+
+model Question {
+  id             Int          @id @default(autoincrement())
+  questionTypeId Int
+  questionType   QuestionType @relation(fields: [questionTypeId], references: [id])
+  stageId        Int?
+  stage          Stage?       @relation(fields: [stageId], references: [id])
+  question       String       @db.VarChar(255)
+  isVisible      Boolean      @default(true)
+  created        DateTime     @default(now())
+  lastUpdated    DateTime     @updatedAt
+  options        Option[]
+}
+
+model Option {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id])
+  option     String   @db.VarChar(255)
+  value      Int      @default(0)
+}
