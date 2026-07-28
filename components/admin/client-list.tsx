@@ -179,7 +179,7 @@ export default function ClientList() {
                       type="button"
                       title="Copy URL to clipboard"
                       onClick={() => {
-                        navigator.clipboard.writeText(`/healthcheck/landing/${client.uniqueKey}`);
+                        navigator.clipboard.writeText(`${window.location.origin}/healthcheck/landing/${client.uniqueKey}`);
                         toast.success("URL copied to clipboard");
                       }}
                       className="text-muted-foreground hover:text-foreground"
