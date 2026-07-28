@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
-import { verifyToken, COOKIE_NAME } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 import type { Prisma } from "@prisma/client";
 
 const VALID_SORT_FIELDS = [
@@ -12,14 +11,8 @@ type SortField = typeof VALID_SORT_FIELDS[number];
 
 export async function GET(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    await verifyToken(token);
+    const unauthorized = await requireAuth();
+    if (unauthorized) return unauthorized;
 
     const params = req.nextUrl.searchParams;
     const search = params.get("search")?.trim() ?? "";
@@ -63,14 +56,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(COOKIE_NAME)?.value;
-
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    await verifyToken(token);
+    const unauthorized = await requireAuth();
+    if (unauthorized) return unauthorized;
 
     const { name, contactPersonName, contactPersonEmail, contactPersonPhone } =
       await req.json();

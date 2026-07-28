@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { POST } from "../route";
 
 vi.mock("@/lib/prisma", () => ({
@@ -10,22 +10,15 @@ vi.mock("@/lib/prisma", () => ({
   },
 }));
 
-vi.mock("next/headers", () => ({
-  cookies: vi.fn(),
-}));
-
 vi.mock("@/lib/auth", () => ({
-  verifyToken: vi.fn(),
-  COOKIE_NAME: "auth-token",
+  requireAuth: vi.fn(),
 }));
 
 import { prisma } from "@/lib/prisma";
-import { cookies } from "next/headers";
-import { verifyToken } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 const mockCreate = prisma.client.create as ReturnType<typeof vi.fn>;
-const mockCookies = cookies as ReturnType<typeof vi.fn>;
-const mockVerifyToken = verifyToken as ReturnType<typeof vi.fn>;
+const mockRequireAuth = requireAuth as ReturnType<typeof vi.fn>;
 
 function makeRequest(body: unknown) {
   return new NextRequest("http://localhost/api/clients", {
@@ -54,10 +47,7 @@ const createdClient = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockCookies.mockResolvedValue({
-    get: vi.fn().mockReturnValue({ value: "valid-token" }),
-  });
-  mockVerifyToken.mockResolvedValue({ id: 1, email: "user@test.com" });
+  mockRequireAuth.mockResolvedValue(null);
 });
 
 describe("POST /api/clients", () => {
@@ -107,9 +97,9 @@ describe("POST /api/clients", () => {
   });
 
   it("returns 401 when no auth token is present", async () => {
-    mockCookies.mockResolvedValueOnce({
-      get: vi.fn().mockReturnValue(undefined),
-    });
+    mockRequireAuth.mockResolvedValueOnce(
+      NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    );
 
     const res = await POST(makeRequest(validBody));
     const body = await res.json();
