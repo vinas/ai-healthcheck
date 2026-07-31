@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { validateQuestionPayload, type OptionPayload } from "@/lib/validate-question";
+import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 const QUESTION_INCLUDE = {
   questionType: true,
@@ -49,7 +50,7 @@ export async function PUT(
     const questionType = await prisma.questionType.findUnique({
       where: { id: questionTypeId },
     });
-    const finalStageId = questionType?.label === "Stages" ? stageId : null;
+    const finalStageId = questionType?.id === QuestionTypeId.Stages ? stageId : null;
 
     const existingOptions = await prisma.option.findMany({
       where: { questionId: id },

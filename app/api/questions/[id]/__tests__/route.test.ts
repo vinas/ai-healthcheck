@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { PUT, PATCH } from "../route";
+import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 const mockTx = {
   question: { update: vi.fn(), findUniqueOrThrow: vi.fn() },
@@ -43,7 +44,7 @@ function makeParams(id = "5") {
   return { params: Promise.resolve({ id }) };
 }
 
-const nonStagesType = { id: 1, label: "Foundation" };
+const nonStagesType = { id: QuestionTypeId.Foundation, label: "Foundation" };
 
 const notFoundError = new Prisma.PrismaClientKnownRequestError("Record not found", {
   code: "P2025",
@@ -59,7 +60,7 @@ beforeEach(() => {
 
 describe("PUT /api/questions/[id]", () => {
   const validBody = {
-    questionTypeId: 1,
+    questionTypeId: QuestionTypeId.Foundation,
     stageId: null,
     question: "Updated question?",
     options: [
@@ -72,7 +73,7 @@ describe("PUT /api/questions/[id]", () => {
     mockOptionFindMany.mockResolvedValueOnce([{ id: 1 }, { id: 2 }]);
     mockTx.question.findUniqueOrThrow.mockResolvedValueOnce({
       id: 5,
-      questionTypeId: 1,
+      questionTypeId: QuestionTypeId.Foundation,
       stageId: null,
       question: "Updated question?",
       isVisible: true,
@@ -95,7 +96,7 @@ describe("PUT /api/questions/[id]", () => {
 
     expect(mockTx.question.update).toHaveBeenCalledWith({
       where: { id: 5 },
-      data: { questionTypeId: 1, stageId: null, question: "Updated question?" },
+      data: { questionTypeId: QuestionTypeId.Foundation, stageId: null, question: "Updated question?" },
     });
     expect(mockTx.option.deleteMany).toHaveBeenCalledWith({
       where: { id: { in: [2] }, questionId: 5 },

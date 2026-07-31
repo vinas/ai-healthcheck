@@ -1,10 +1,16 @@
 import { PrismaClient } from "@prisma/client";
+import {
+  QuestionTypeId,
+  StageId,
+  QUESTION_TYPE_LABELS,
+  STAGE_LABELS,
+} from "../lib/question-taxonomy";
 
 const prisma = new PrismaClient();
 
 type OptionSeed = { option: string; value: number };
 type QuestionSeed = { question: string; options: OptionSeed[] };
-type StageSeed = { label: string; questions: QuestionSeed[] };
+type StageSeed = { id: StageId; questions: QuestionSeed[] };
 
 function ctx(...options: string[]): OptionSeed[] {
   return options.map((option) => ({ option, value: 0 }));
@@ -119,7 +125,7 @@ const FOUNDATION_QUESTIONS: QuestionSeed[] = [
 
 const STAGE_QUESTIONS: StageSeed[] = [
   {
-    label: "Demand Definition",
+    id: StageId.DemandDefinition,
     questions: [
       {
         question: "How is AI currently used when defining or refining requirements?",
@@ -172,7 +178,7 @@ const STAGE_QUESTIONS: StageSeed[] = [
     ],
   },
   {
-    label: "Implementation Planning",
+    id: StageId.ImplementationPlanning,
     questions: [
       {
         question:
@@ -227,7 +233,7 @@ const STAGE_QUESTIONS: StageSeed[] = [
     ],
   },
   {
-    label: "Implementation (Coding)",
+    id: StageId.ImplementationCoding,
     questions: [
       {
         question:
@@ -281,7 +287,7 @@ const STAGE_QUESTIONS: StageSeed[] = [
     ],
   },
   {
-    label: "Testing",
+    id: StageId.Testing,
     questions: [
       {
         question: "Is AI used to generate test cases (unit, integration, API, UI, or regression)?",
@@ -334,7 +340,7 @@ const STAGE_QUESTIONS: StageSeed[] = [
     ],
   },
   {
-    label: "Pull Request Review",
+    id: StageId.PullRequestReview,
     questions: [
       {
         question: "Is AI automatically triggered to review code when a pull request is opened?",
@@ -385,7 +391,7 @@ const STAGE_QUESTIONS: StageSeed[] = [
     ],
   },
   {
-    label: "Deployment & Delivery",
+    id: StageId.DeploymentDelivery,
     questions: [
       {
         question: "Is AI used to assess deployment readiness or predict deployment risk before a release?",
@@ -494,17 +500,22 @@ async function seedQuestionnaire() {
     return;
   }
 
-  const [contextType, foundationType, stagesType, governanceType] = await Promise.all([
-    prisma.questionType.create({ data: { label: "Context" } }),
-    prisma.questionType.create({ data: { label: "Foundation" } }),
-    prisma.questionType.create({ data: { label: "Stages" } }),
-    prisma.questionType.create({ data: { label: "Governance" } }),
-  ]);
+  await Promise.all(
+    Object.values(QuestionTypeId)
+      .filter((v): v is QuestionTypeId => typeof v === "number")
+      .map((id) =>
+        prisma.questionType.upsert({
+          where: { id },
+          update: { label: QUESTION_TYPE_LABELS[id] },
+          create: { id, label: QUESTION_TYPE_LABELS[id] },
+        })
+      )
+  );
 
   for (const q of CONTEXT_QUESTIONS) {
     await prisma.question.create({
       data: {
-        questionTypeId: contextType.id,
+        questionTypeId: QuestionTypeId.Context,
         question: q.question,
         options: { create: q.options },
       },
@@ -514,7 +525,7 @@ async function seedQuestionnaire() {
   for (const q of FOUNDATION_QUESTIONS) {
     await prisma.question.create({
       data: {
-        questionTypeId: foundationType.id,
+        questionTypeId: QuestionTypeId.Foundation,
         question: q.question,
         options: { create: q.options },
       },
@@ -522,12 +533,16 @@ async function seedQuestionnaire() {
   }
 
   for (const stageSeed of STAGE_QUESTIONS) {
-    const stage = await prisma.stage.create({ data: { label: stageSeed.label } });
+    await prisma.stage.upsert({
+      where: { id: stageSeed.id },
+      update: { label: STAGE_LABELS[stageSeed.id] },
+      create: { id: stageSeed.id, label: STAGE_LABELS[stageSeed.id] },
+    });
     for (const q of stageSeed.questions) {
       await prisma.question.create({
         data: {
-          questionTypeId: stagesType.id,
-          stageId: stage.id,
+          questionTypeId: QuestionTypeId.Stages,
+          stageId: stageSeed.id,
           question: q.question,
           options: { create: q.options },
         },
@@ -538,7 +553,7 @@ async function seedQuestionnaire() {
   for (const q of GOVERNANCE_QUESTIONS) {
     await prisma.question.create({
       data: {
-        questionTypeId: governanceType.id,
+        questionTypeId: QuestionTypeId.Governance,
         question: q.question,
         options: { create: q.options },
       },

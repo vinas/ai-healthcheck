@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 const inputClass =
   "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
@@ -32,7 +33,6 @@ export type QuestionDTO = {
 
 type OptionDraft = { id?: number; option: string; value: number };
 
-const STAGES_TYPE_LABEL = "Stages";
 const MIN_OPTIONS = 2;
 
 function blankOptions(): OptionDraft[] {
@@ -76,15 +76,13 @@ export default function QuestionForm({
   const [stageError, setStageError] = useState("");
   const [optionsError, setOptionsError] = useState("");
 
-  const selectedType = questionTypes.find((t) => t.id === questionTypeId);
-  const isStagesType = selectedType?.label === STAGES_TYPE_LABEL;
+  const isStagesType = questionTypeId === QuestionTypeId.Stages;
 
   function handleQuestionTypeChange(value: string) {
     const nextId = value === "" ? "" : Number(value);
     setQuestionTypeId(nextId);
     setQuestionTypeError("");
-    const nextType = questionTypes.find((t) => t.id === nextId);
-    if (nextType?.label !== STAGES_TYPE_LABEL) {
+    if (nextId !== QuestionTypeId.Stages) {
       setStageId("");
       setStageError("");
     }

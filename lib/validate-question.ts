@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 export type OptionPayload = { id?: number; option: unknown; value: unknown };
 
@@ -32,7 +33,7 @@ export async function validateQuestionPayload(
     return "questionTypeId does not reference an existing question type.";
   }
 
-  const isStagesType = questionType.label === "Stages";
+  const isStagesType = questionType.id === QuestionTypeId.Stages;
   if (isStagesType) {
     if (typeof stageId !== "number" || !Number.isInteger(stageId)) {
       return "stageId is required when question type is Stages.";

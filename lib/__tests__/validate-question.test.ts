@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { validateQuestionPayload } from "../validate-question";
+import { QuestionTypeId } from "../question-taxonomy";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -13,8 +14,8 @@ import { prisma } from "@/lib/prisma";
 const mockQuestionTypeFindUnique = prisma.questionType.findUnique as ReturnType<typeof vi.fn>;
 const mockStageFindUnique = prisma.stage.findUnique as ReturnType<typeof vi.fn>;
 
-const nonStagesType = { id: 1, label: "Foundation" };
-const stagesType = { id: 3, label: "Stages" };
+const nonStagesType = { id: QuestionTypeId.Foundation, label: "Foundation" };
+const stagesType = { id: QuestionTypeId.Stages, label: "Stages" };
 const stage = { id: 2, label: "Testing" };
 
 const validOptions = [
@@ -24,7 +25,7 @@ const validOptions = [
 
 function basePayload(overrides: Partial<Record<string, unknown>> = {}) {
   return {
-    questionTypeId: 1,
+    questionTypeId: QuestionTypeId.Foundation,
     stageId: null,
     question: "Is this a valid question?",
     options: validOptions,
@@ -48,7 +49,7 @@ describe("validateQuestionPayload", () => {
     mockStageFindUnique.mockResolvedValueOnce(stage);
 
     const result = await validateQuestionPayload(
-      basePayload({ questionTypeId: 3, stageId: 2 })
+      basePayload({ questionTypeId: QuestionTypeId.Stages, stageId: 2 })
     );
     expect(result).toBeNull();
   });
@@ -81,14 +82,16 @@ describe("validateQuestionPayload", () => {
 
   it("rejects a Stages question without a stageId", async () => {
     mockQuestionTypeFindUnique.mockResolvedValueOnce(stagesType);
-    const result = await validateQuestionPayload(basePayload({ questionTypeId: 3 }));
+    const result = await validateQuestionPayload(basePayload({ questionTypeId: QuestionTypeId.Stages }));
     expect(result).toBe("stageId is required when question type is Stages.");
   });
 
   it("rejects a Stages question with a stageId that does not exist", async () => {
     mockQuestionTypeFindUnique.mockResolvedValueOnce(stagesType);
     mockStageFindUnique.mockResolvedValueOnce(null);
-    const result = await validateQuestionPayload(basePayload({ questionTypeId: 3, stageId: 99 }));
+    const result = await validateQuestionPayload(
+      basePayload({ questionTypeId: QuestionTypeId.Stages, stageId: 99 })
+    );
     expect(result).toBe("stageId does not reference an existing stage.");
   });
 

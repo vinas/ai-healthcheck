@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
 import { GET, POST } from "../route";
+import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
@@ -31,10 +32,10 @@ function makeRequest(body?: unknown) {
   });
 }
 
-const nonStagesType = { id: 1, label: "Foundation" };
+const nonStagesType = { id: QuestionTypeId.Foundation, label: "Foundation" };
 
 const validBody = {
-  questionTypeId: 1,
+  questionTypeId: QuestionTypeId.Foundation,
   stageId: null,
   question: "Is this a valid question?",
   options: [
@@ -45,7 +46,7 @@ const validBody = {
 
 const createdQuestion = {
   id: 10,
-  questionTypeId: 1,
+  questionTypeId: QuestionTypeId.Foundation,
   stageId: null,
   question: "Is this a valid question?",
   isVisible: true,
@@ -151,9 +152,9 @@ describe("POST /api/questions", () => {
   });
 
   it("returns 400 when a Stages question is missing stageId", async () => {
-    mockQuestionTypeFindUnique.mockResolvedValueOnce({ id: 3, label: "Stages" });
+    mockQuestionTypeFindUnique.mockResolvedValueOnce({ id: QuestionTypeId.Stages, label: "Stages" });
 
-    const res = await POST(makeRequest({ ...validBody, questionTypeId: 3 }));
+    const res = await POST(makeRequest({ ...validBody, questionTypeId: QuestionTypeId.Stages }));
     const body = await res.json();
 
     expect(res.status).toBe(400);
