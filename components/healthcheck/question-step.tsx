@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import AssessmentFooter from "@/components/healthcheck/assessment-footer";
 import { getAnswer, setAnswer } from "@/lib/assessment-answers";
@@ -14,6 +14,14 @@ type QuestionStepProps = {
   nextHref: string;
 };
 
+function noopSubscribe() {
+  return () => {};
+}
+
+function getServerAnswerSnapshot() {
+  return undefined;
+}
+
 export default function QuestionStep({
   uniqueKey,
   question,
@@ -23,9 +31,20 @@ export default function QuestionStep({
   nextHref,
 }: QuestionStepProps) {
   const router = useRouter();
-  const [selected, setSelected] = useState<number | undefined>(() =>
-    getAnswer(uniqueKey, question.id)
+
+  // sessionStorage only exists client-side, so the previously stored answer
+  // can't be known during server rendering. useSyncExternalStore is React's
+  // sanctioned way to read a value like this: it renders `undefined` on the
+  // server (and on the client's first hydration pass, to match), then
+  // immediately reflects the real client-only value right after — without
+  // the hydration-mismatch warning a useState+useEffect version would cause.
+  const storedAnswer = useSyncExternalStore(
+    noopSubscribe,
+    () => getAnswer(uniqueKey, question.id),
+    getServerAnswerSnapshot
   );
+  const [override, setOverride] = useState<number | undefined>(undefined);
+  const selected = override ?? storedAnswer;
 
   function handleNext() {
     if (selected == null) return;
@@ -56,7 +75,7 @@ export default function QuestionStep({
                   name={`question-${question.id}`}
                   value={opt.id}
                   checked={selected === opt.id}
-                  onChange={() => setSelected(opt.id)}
+                  onChange={() => setOverride(opt.id)}
                   className="sr-only"
                 />
                 {opt.option}
