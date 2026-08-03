@@ -9,27 +9,27 @@ const STAGE_INTRO_COPY: Record<StageId, string[]> = {
   [StageId.DemandDefinition]: [
     "This section looks at how AI supports turning business needs into clear, development-ready requirements — drafting, refining, and catching ambiguity before work begins.",
     "This is often one of the least mature areas, since it requires both business and engineering teams to adopt AI together, not just developers.",
-    "It's typically best answered by a Product Manager or the Technical Lead closest to requirements work.",
+    "This is typically best answered by a Product Manager or the Technical Lead closest to requirements work.",
   ],
   [StageId.ImplementationPlanning]: [
     "This section covers how AI supports technical design, task breakdown, and effort estimation before coding begins.",
-    "It's typically best answered by a Senior Developer or Tech Lead.",
+    "This is typically best answered by a Senior Developer or Tech Lead.",
   ],
   [StageId.ImplementationCoding]: [
     "This section covers how deeply AI is embedded in day-to-day coding work across your development team.",
-    "It's typically best answered by developers directly — for larger teams, consider having 2–3 developers weigh in.",
+    "This is typically best answered by developers directly — for larger teams, consider having 2–3 developers weigh in.",
   ],
   [StageId.Testing]: [
     "This section covers how AI generates, maintains, and integrates automated tests into your development workflow.",
-    "It's typically best answered by a QA Lead or the developer who owns your test strategy.",
+    "This is typically best answered by a QA Lead or the developer who owns your test strategy.",
   ],
   [StageId.PullRequestReview]: [
     "This section covers how consistently AI reviews code changes before they're merged, and how effective that review is at catching issues.",
-    "It's typically best answered by a Senior Developer or Engineering Manager.",
+    "This is typically best answered by a Senior Developer or Engineering Manager.",
   ],
   [StageId.DeploymentDelivery]: [
     "This section covers how AI supports release decisions, CI/CD automation, and deployment risk assessment.",
-    "It's typically best answered by a DevOps, Platform, or Release Engineering Lead.",
+    "This is typically best answered by a DevOps, Platform, or Release Engineering Lead.",
   ],
 };
 
