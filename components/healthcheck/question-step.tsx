@@ -12,6 +12,7 @@ type QuestionStepProps = {
   total: number;
   backHref: string;
   nextHref: string;
+  groupLabel?: string;
 };
 
 function noopSubscribe() {
@@ -29,6 +30,7 @@ export default function QuestionStep({
   total,
   backHref,
   nextHref,
+  groupLabel,
 }: QuestionStepProps) {
   const router = useRouter();
 
@@ -57,7 +59,7 @@ export default function QuestionStep({
       <div className="flex flex-col gap-8 px-8 py-6">
         <div className="flex max-w-2xl flex-col gap-4">
           <p className="text-sm text-muted-foreground">
-            Question {position} of {total}
+            {groupLabel ? `${groupLabel} — ` : ""}Question {position} of {total}
           </p>
           <h2 className="text-lg font-semibold text-foreground">{question.question}</h2>
           <div className="flex flex-col gap-2">

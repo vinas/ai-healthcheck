@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,17 +11,23 @@ const inputClass =
 const selectClass =
   "h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
 
+type ClientKey = {
+  id: number;
+  uniqueKey: string;
+  keyUsedAt: string | null;
+  createdAt: string;
+};
+
 type Client = {
   id: number;
   name: string;
   contactPersonName: string | null;
   contactPersonEmail: string | null;
   contactPersonPhone: string | null;
-  uniqueKey: string;
-  keyUsedAt: string | null;
+  keys: ClientKey[];
 };
 
-type SortField = keyof Client;
+type SortField = keyof Omit<Client, "keys">;
 type SortDir = "asc" | "desc";
 type PageSize = 10 | 20 | 50 | 100 | "all";
 
@@ -31,11 +37,11 @@ const COLUMNS: { field: SortField; label: string }[] = [
   { field: "contactPersonName", label: "Contact Name" },
   { field: "contactPersonEmail", label: "Contact Email" },
   { field: "contactPersonPhone", label: "Contact Phone" },
-  { field: "uniqueKey", label: "Unique Key" },
-  { field: "keyUsedAt", label: "Key Used At" },
 ];
 
-function formatKeyUsedAt(value: string | null): string {
+const COLUMN_COUNT = COLUMNS.length + 2; // + Keys count column + actions column
+
+function formatDateTime(value: string | null): string {
   if (!value) return "—";
   return new Date(value).toLocaleString();
 }
@@ -56,6 +62,9 @@ export default function ClientList() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState<PageSize>(10);
   const [loading, setLoading] = useState(false);
+
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [generatingId, setGeneratingId] = useState<number | null>(null);
 
   // Debounce search
   useEffect(() => {
@@ -107,6 +116,26 @@ export default function ClientList() {
     setPage(1);
   }
 
+  async function handleGenerateKey(clientId: number) {
+    setGeneratingId(clientId);
+    try {
+      const res = await fetch(`/api/clients/${clientId}/keys`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setClients((prev) =>
+          prev.map((c) => (c.id === clientId ? { ...c, keys: [data, ...c.keys] } : c))
+        );
+        toast.success("New key generated.");
+      } else {
+        toast.error(data.error ?? "Something went wrong.");
+      }
+    } catch {
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setGeneratingId(null);
+    }
+  }
+
   const isAll = pageSize === "all";
 
   return (
@@ -146,6 +175,7 @@ export default function ClientList() {
                   </button>
                 </th>
               ))}
+              <th className="px-4 py-2 text-left font-medium text-foreground">Keys</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -153,7 +183,7 @@ export default function ClientList() {
             {clients.length === 0 ? (
               <tr>
                 <td
-                  colSpan={COLUMNS.length + 1}
+                  colSpan={COLUMN_COUNT}
                   className="px-4 py-6 text-center text-muted-foreground"
                 >
                   No clients found.
@@ -161,33 +191,101 @@ export default function ClientList() {
               </tr>
             ) : (
               clients.map((client) => (
-                <tr
-                  key={client.id}
-                  className="border-b border-border last:border-0 hover:bg-muted/30"
-                >
-                  <td className="px-4 py-2 text-foreground">{client.id}</td>
-                  <td className="px-4 py-2 text-foreground">{client.name}</td>
-                  <td className="px-4 py-2 text-foreground">{client.contactPersonName ?? "—"}</td>
-                  <td className="px-4 py-2 text-foreground">{client.contactPersonEmail ?? "—"}</td>
-                  <td className="px-4 py-2 text-foreground">{client.contactPersonPhone ?? "—"}</td>
-                  <td className="px-4 py-2 font-mono text-foreground" title={client.uniqueKey}>
-                    {formatUniqueKey(client.uniqueKey)}…
-                  </td>
-                  <td className="px-4 py-2 text-foreground">{formatKeyUsedAt(client.keyUsedAt)}</td>
-                  <td className="px-4 py-2">
-                    <button
-                      type="button"
-                      title="Copy URL to clipboard"
-                      onClick={() => {
-                        navigator.clipboard.writeText(`${window.location.origin}/healthcheck/landing/${client.uniqueKey}`);
-                        toast.success("URL copied to clipboard");
-                      }}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Copy size={15} />
-                    </button>
-                  </td>
-                </tr>
+                <Fragment key={client.id}>
+                  <tr className="border-b border-border last:border-0 hover:bg-muted/30">
+                    <td className="px-4 py-2 text-foreground">{client.id}</td>
+                    <td className="px-4 py-2 text-foreground">{client.name}</td>
+                    <td className="px-4 py-2 text-foreground">{client.contactPersonName ?? "—"}</td>
+                    <td className="px-4 py-2 text-foreground">{client.contactPersonEmail ?? "—"}</td>
+                    <td className="px-4 py-2 text-foreground">{client.contactPersonPhone ?? "—"}</td>
+                    <td className="px-4 py-2 text-foreground">
+                      {client.keys.length} key{client.keys.length === 1 ? "" : "s"}
+                    </td>
+                    <td className="px-4 py-2">
+                      <div className="flex justify-end">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            setExpandedId(expandedId === client.id ? null : client.id)
+                          }
+                        >
+                          {expandedId === client.id ? "Hide" : "Keys"}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                  {expandedId === client.id && (
+                    <tr className="border-b border-border last:border-0 bg-muted/20">
+                      <td colSpan={COLUMN_COUNT} className="px-4 py-4">
+                        <div className="flex flex-col gap-3">
+                          {client.keys.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">No keys yet.</p>
+                          ) : (
+                            <table className="w-full text-sm">
+                              <thead>
+                                <tr className="border-b border-border">
+                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                                    Unique Key
+                                  </th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                                    Created At
+                                  </th>
+                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                                    Key Used At
+                                  </th>
+                                  <th className="px-2 py-1.5" />
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {client.keys.map((key) => (
+                                  <tr key={key.id} className="border-b border-border last:border-0">
+                                    <td className="px-2 py-1.5 font-mono text-foreground" title={key.uniqueKey}>
+                                      {formatUniqueKey(key.uniqueKey)}…
+                                    </td>
+                                    <td className="px-2 py-1.5 text-foreground">
+                                      {formatDateTime(key.createdAt)}
+                                    </td>
+                                    <td className="px-2 py-1.5 text-foreground">
+                                      {formatDateTime(key.keyUsedAt)}
+                                    </td>
+                                    <td className="px-2 py-1.5">
+                                      <button
+                                        type="button"
+                                        title="Copy URL to clipboard"
+                                        onClick={() => {
+                                          navigator.clipboard.writeText(
+                                            `${window.location.origin}/healthcheck/landing/${key.uniqueKey}`
+                                          );
+                                          toast.success("URL copied to clipboard");
+                                        }}
+                                        className="text-muted-foreground hover:text-foreground"
+                                      >
+                                        <Copy size={15} />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          )}
+                          <div>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={generatingId === client.id}
+                              onClick={() => handleGenerateKey(client.id)}
+                            >
+                              {generatingId === client.id ? "Generating…" : "Generate new key"}
+                            </Button>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))
             )}
           </tbody>

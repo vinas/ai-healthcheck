@@ -5,7 +5,7 @@ import type { Prisma } from "@prisma/client";
 
 const VALID_SORT_FIELDS = [
   "id", "name", "contactPersonName", "contactPersonEmail",
-  "contactPersonPhone", "uniqueKey", "keyUsedAt",
+  "contactPersonPhone",
 ] as const;
 type SortField = typeof VALID_SORT_FIELDS[number];
 
@@ -41,7 +41,13 @@ export async function GET(req: NextRequest) {
     const take = isAll ? undefined : pageSize;
 
     const [data, total] = await prisma.$transaction([
-      prisma.client.findMany({ where, orderBy: { [sortBy]: sortDir }, skip, take }),
+      prisma.client.findMany({
+        where,
+        orderBy: { [sortBy]: sortDir },
+        skip,
+        take,
+        include: { keys: { orderBy: { createdAt: "desc" } } },
+      }),
       prisma.client.count({ where }),
     ]);
 
@@ -70,7 +76,14 @@ export async function POST(req: NextRequest) {
     }
 
     const client = await prisma.client.create({
-      data: { name, contactPersonName, contactPersonEmail, contactPersonPhone },
+      data: {
+        name,
+        contactPersonName,
+        contactPersonEmail,
+        contactPersonPhone,
+        keys: { create: [{}] },
+      },
+      include: { keys: true },
     });
 
     return NextResponse.json(client, { status: 200 });

@@ -41,8 +41,14 @@ const createdClient = {
   contactPersonName: "John Doe",
   contactPersonEmail: "john@acme.com",
   contactPersonPhone: "+1234567890",
-  uniqueKey: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-  keyUsedAt: null,
+  keys: [
+    {
+      id: 1,
+      uniqueKey: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      keyUsedAt: null,
+      createdAt: "2026-08-03T00:00:00.000Z",
+    },
+  ],
 };
 
 beforeEach(() => {
@@ -59,7 +65,16 @@ describe("POST /api/clients", () => {
 
     expect(res.status).toBe(200);
     expect(body).toEqual(createdClient);
-    expect(mockCreate).toHaveBeenCalledOnce();
+    expect(mockCreate).toHaveBeenCalledWith({
+      data: {
+        name: validBody.name,
+        contactPersonName: validBody.contactPersonName,
+        contactPersonEmail: validBody.contactPersonEmail,
+        contactPersonPhone: validBody.contactPersonPhone,
+        keys: { create: [{}] },
+      },
+      include: { keys: true },
+    });
   });
 
   it("returns 400 when name is null", async () => {
