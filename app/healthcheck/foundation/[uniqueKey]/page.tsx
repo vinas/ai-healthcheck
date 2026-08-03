@@ -32,6 +32,11 @@ export default async function FoundationIntroPage({
             organization&apos;s foundation is to support meaningful AI
             adoption across the rest of your development process.
           </p>
+          <p className="text-base text-foreground">
+            It&apos;s typically best answered by an Engineering Manager or
+            DevOps/Platform Lead, since it covers tooling and infrastructure
+            decisions rather than day-to-day development work.
+          </p>
         </StepIntroduction>
       </div>
       <AssessmentFooter

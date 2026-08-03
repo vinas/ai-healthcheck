@@ -1,6 +1,7 @@
 import AssessmentHeader from "@/components/healthcheck/assessment-header";
 import StepIntroduction from "@/components/healthcheck/step-introduction";
 import AssessmentFooter from "@/components/healthcheck/assessment-footer";
+import FoundationFlagNotice from "@/components/healthcheck/foundation-flag-notice";
 import { prisma } from "@/lib/prisma";
 import { QuestionTypeId, StageId } from "@/lib/question-taxonomy";
 
@@ -15,10 +16,16 @@ export default async function StagesIntroPage({
     where: { questionTypeId: QuestionTypeId.Foundation, isVisible: true },
   });
 
+  const foundationQuestions = await prisma.question.findMany({
+    where: { questionTypeId: QuestionTypeId.Foundation, isVisible: true },
+    select: { id: true, options: { select: { id: true, value: true } } },
+  });
+
   return (
     <main className="flex min-h-screen flex-col bg-background">
       <AssessmentHeader activeStep={QuestionTypeId.Stages} />
       <div className="flex flex-col gap-8 px-8 py-6">
+        <FoundationFlagNotice uniqueKey={uniqueKey} foundationQuestions={foundationQuestions} />
         <StepIntroduction heading="About this section">
           <p className="text-base text-foreground">
             This is the largest part of the assessment. It covers six stages

@@ -235,6 +235,11 @@ export default async function ReportPage({
             <p className="text-sm text-muted-foreground">
               {report.governance.levelLabel ?? "No data"}
             </p>
+            {report.governance.levelDescription && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {report.governance.levelDescription}
+              </p>
+            )}
             {report.governance.questions.length > 0 && (
               <ul className="mt-3 flex flex-col gap-2">
                 {report.governance.questions.map((q, i) => (
