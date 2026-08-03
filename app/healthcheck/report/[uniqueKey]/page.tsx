@@ -117,7 +117,7 @@ export default async function ReportPage({
         </h1>
       </header>
 
-      <div className="flex max-w-4xl flex-col gap-10 px-8 py-6">
+      <div className="flex max-w-4xl flex-col gap-10 px-8 pt-6 pb-16">
         {!narrativePublished && (
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-foreground">
             Your detailed recommendations and narrative analysis are still being prepared. This
