@@ -2,25 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { validateNarrativePayload, type NarrativePayload } from "@/lib/validate-narrative";
-import { computeReport, type AnswerRecord } from "@/lib/scoring";
-import { QuestionTypeId, StageId } from "@/lib/question-taxonomy";
-
-async function loadClientKey(uniqueKey: string) {
-  const clientKey = await prisma.clientKey.findUnique({
-    where: { uniqueKey },
-    include: { client: { select: { id: true, name: true } }, narrative: true },
-  });
-  if (!clientKey) {
-    return NextResponse.json({ error: "Client key not found." }, { status: 404 });
-  }
-  if (!clientKey.keyUsedAt) {
-    return NextResponse.json(
-      { error: "This assessment hasn't been completed yet." },
-      { status: 409 }
-    );
-  }
-  return clientKey;
-}
+import { loadNarrativeContext } from "@/lib/narrative-lookup";
 
 export async function GET(
   req: NextRequest,
@@ -31,29 +13,9 @@ export async function GET(
     if (unauthorized) return unauthorized;
 
     const { uniqueKey } = await params;
-    const clientKey = await loadClientKey(uniqueKey);
-    if (clientKey instanceof NextResponse) return clientKey;
-
-    const rawAnswers = await prisma.answer.findMany({
-      where: { clientKeyId: clientKey.id, question: { isVisible: true } },
-      include: {
-        question: { select: { question: true, questionTypeId: true, stageId: true } },
-        option: { select: { option: true, value: true } },
-      },
-    });
-
-    const answers: AnswerRecord[] = rawAnswers.map((a) => ({
-      questionTypeId: a.question.questionTypeId as QuestionTypeId,
-      stageId: a.question.stageId as StageId | null,
-      questionText: a.question.question,
-      optionText: a.option.option,
-      value: a.option.value,
-    }));
-
-    const report = computeReport(answers);
-    const contextAnswers = rawAnswers
-      .filter((a) => a.question.questionTypeId === QuestionTypeId.Context)
-      .map((a) => ({ questionText: a.question.question, optionText: a.option.option }));
+    const context = await loadNarrativeContext(uniqueKey);
+    if (context instanceof NextResponse) return context;
+    const { clientKey, report, contextAnswers } = context;
 
     const narrative = clientKey.narrative
       ? {
@@ -90,8 +52,9 @@ export async function PUT(
     if (unauthorized) return unauthorized;
 
     const { uniqueKey } = await params;
-    const clientKey = await loadClientKey(uniqueKey);
-    if (clientKey instanceof NextResponse) return clientKey;
+    const context = await loadNarrativeContext(uniqueKey);
+    if (context instanceof NextResponse) return context;
+    const { clientKey } = context;
 
     const body = (await req.json()) as NarrativePayload;
     const validationError = validateNarrativePayload(body);

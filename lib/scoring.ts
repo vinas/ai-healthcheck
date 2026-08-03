@@ -26,6 +26,7 @@ export type FoundationResult = {
   max: number;
   band: "Critical" | "Partial" | "Ready" | null;
   flagText: string | null;
+  interpretationText: string | null;
   questions: { questionText: string; optionText: string }[];
 };
 
@@ -110,9 +111,23 @@ const FOUNDATION_BANDS = [
     max: 2,
     band: "Critical" as const,
     flagText: "AI adoption is constrained by missing infrastructure.",
+    interpretationText: "Stage scores may significantly understate potential.",
   },
-  { min: 3, max: 5, band: "Partial" as const, flagText: null },
-  { min: 6, max: 9, band: "Ready" as const, flagText: null },
+  {
+    min: 3,
+    max: 5,
+    band: "Partial" as const,
+    flagText: null,
+    interpretationText:
+      "Some infrastructure exists. Report flags stages where missing integrations likely limit AI effectiveness.",
+  },
+  {
+    min: 6,
+    max: 9,
+    band: "Ready" as const,
+    flagText: null,
+    interpretationText: "Infrastructure supports meaningful AI adoption. No additional flag.",
+  },
 ];
 
 const STAGE_IDS: StageId[] = [
@@ -192,7 +207,7 @@ function computeFoundation(foundationAnswers: AnswerRecord[]): FoundationResult 
   const score = foundationAnswers.reduce((sum, a) => sum + a.value, 0);
   const max = foundationAnswers.length * 3;
   if (foundationAnswers.length === 0) {
-    return { score: 0, max: 0, band: null, flagText: null, questions: [] };
+    return { score: 0, max: 0, band: null, flagText: null, interpretationText: null, questions: [] };
   }
   const bandInfo =
     FOUNDATION_BANDS.find((b) => score >= b.min && score <= b.max) ??
@@ -202,6 +217,7 @@ function computeFoundation(foundationAnswers: AnswerRecord[]): FoundationResult 
     max,
     band: bandInfo.band,
     flagText: bandInfo.flagText,
+    interpretationText: bandInfo.interpretationText,
     questions: toQuestionList(foundationAnswers),
   };
 }

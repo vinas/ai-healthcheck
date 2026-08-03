@@ -163,25 +163,34 @@ describe("computeReport — overall level", () => {
 });
 
 describe("computeReport — Foundation", () => {
-  it("bands 0-2 as Critical, with the guide's exact flag text", () => {
+  it("bands 0-2 as Critical, with the guide's exact flag and interpretation text", () => {
     const report = computeReport(foundationAnswers([0, 1, 1]));
     expect(report.foundation.score).toBe(2);
     expect(report.foundation.band).toBe("Critical");
     expect(report.foundation.flagText).toBe("AI adoption is constrained by missing infrastructure.");
+    expect(report.foundation.interpretationText).toBe(
+      "Stage scores may significantly understate potential."
+    );
   });
 
-  it("bands 3-5 as Partial, with no flag text", () => {
+  it("bands 3-5 as Partial, with no flag text but the guide's interpretation text", () => {
     const report = computeReport(foundationAnswers([1, 1, 2]));
     expect(report.foundation.score).toBe(4);
     expect(report.foundation.band).toBe("Partial");
     expect(report.foundation.flagText).toBeNull();
+    expect(report.foundation.interpretationText).toBe(
+      "Some infrastructure exists. Report flags stages where missing integrations likely limit AI effectiveness."
+    );
   });
 
-  it("bands 6-9 as Ready, with no flag text", () => {
+  it("bands 6-9 as Ready, with no flag text but the guide's interpretation text", () => {
     const report = computeReport(foundationAnswers([2, 2, 3]));
     expect(report.foundation.score).toBe(7);
     expect(report.foundation.band).toBe("Ready");
     expect(report.foundation.flagText).toBeNull();
+    expect(report.foundation.interpretationText).toBe(
+      "Infrastructure supports meaningful AI adoption. No additional flag."
+    );
   });
 
   it("does not normalize to a 0-5 level — score/max stay on the 0-9 scale", () => {
@@ -190,11 +199,12 @@ describe("computeReport — Foundation", () => {
     expect(report.foundation.max).toBe(9);
   });
 
-  it("has a zero score/max/null band when nothing was answered", () => {
+  it("has a zero score/max/null band/null interpretation when nothing was answered", () => {
     const report = computeReport([]);
     expect(report.foundation.score).toBe(0);
     expect(report.foundation.max).toBe(0);
     expect(report.foundation.band).toBeNull();
+    expect(report.foundation.interpretationText).toBeNull();
   });
 });
 

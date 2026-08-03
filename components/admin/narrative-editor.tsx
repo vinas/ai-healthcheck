@@ -11,6 +11,7 @@ import BenchmarkContextStep from "@/components/admin/narrative/benchmark-context
 import ReviewStep from "@/components/admin/narrative/review-step";
 import StepFooter from "@/components/admin/narrative/step-footer";
 import { emptyDraft, type NarrativeBundle, type NarrativeDraft, type StepId } from "@/components/admin/narrative/types";
+import type { DraftTarget } from "@/lib/narrative-ai-draft";
 
 const STAGE_IDS: StageId[] = [
   StageId.DemandDefinition,
@@ -41,6 +42,7 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
   const [activeStep, setActiveStep] = useState<StepId>("summary");
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  const [drafting, setDrafting] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -96,6 +98,39 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
       toast.error("An unexpected error occurred while saving.");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDraft(target: DraftTarget) {
+    setDrafting(true);
+    try {
+      const res = await fetch(`/api/narratives/${uniqueKey}/draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error ?? "Failed to generate a draft.");
+        return;
+      }
+      if (target === "roadmap") {
+        setDraft((d) => ({ ...d, roadmap: data.roadmap }));
+      } else if (target === "summary") {
+        setDraft((d) => ({ ...d, executiveSummary: data.text }));
+      } else if (target === "benchmark") {
+        setDraft((d) => ({ ...d, benchmarkContext: data.text }));
+      } else {
+        const stageKey = target.replace("stage-", "");
+        setDraft((d) => ({
+          ...d,
+          stageInterpretations: { ...d.stageInterpretations, [stageKey]: data.text },
+        }));
+      }
+    } catch {
+      toast.error("An unexpected error occurred while generating the draft.");
+    } finally {
+      setDrafting(false);
     }
   }
 
@@ -204,6 +239,8 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
               report={bundle.report}
               value={draft.executiveSummary}
               onChange={(v) => setDraft((d) => ({ ...d, executiveSummary: v }))}
+              onDraft={() => handleDraft("summary")}
+              drafting={drafting}
             />
           )}
           {STAGE_IDS.map((stageId) =>
@@ -218,6 +255,8 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
                     stageInterpretations: { ...d.stageInterpretations, [String(stageId)]: v },
                   }))
                 }
+                onDraft={() => handleDraft(`stage-${stageId}` as DraftTarget)}
+                drafting={drafting}
               />
             ) : null
           )}
@@ -226,6 +265,8 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
               report={bundle.report}
               items={draft.roadmap}
               onChange={(items) => setDraft((d) => ({ ...d, roadmap: items }))}
+              onDraft={() => handleDraft("roadmap")}
+              drafting={drafting}
             />
           )}
           {activeStep === "benchmark" && (
@@ -233,6 +274,8 @@ export default function NarrativeEditor({ uniqueKey }: NarrativeEditorProps) {
               contextAnswers={bundle.contextAnswers}
               value={draft.benchmarkContext}
               onChange={(v) => setDraft((d) => ({ ...d, benchmarkContext: v }))}
+              onDraft={() => handleDraft("benchmark")}
+              drafting={drafting}
             />
           )}
           {activeStep === "review" && (

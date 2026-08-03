@@ -208,6 +208,11 @@ export default async function ReportPage({
             <p className="text-sm text-muted-foreground">
               {report.foundation.band ? `Foundation ${report.foundation.band}` : "No data"}
             </p>
+            {report.foundation.interpretationText && (
+              <p className="mt-1 text-sm text-muted-foreground">
+                {report.foundation.interpretationText}
+              </p>
+            )}
             {report.foundation.flagText && (
               <p className="mt-2 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
                 ⚠️ {report.foundation.flagText}

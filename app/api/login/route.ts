@@ -1,20 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createHash } from "crypto";
+import bcrypt from "bcryptjs";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { signToken, COOKIE_NAME } from "@/lib/auth";
+
+const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
+const RATE_LIMIT_MAX_ATTEMPTS = 5;
 
 export async function POST(req: NextRequest) {
   try {
     const { email, password } = await req.json();
 
-    const hashedPassword = createHash("sha256").update(password).digest("hex");
-
-    const user = await prisma.user.findFirst({
-      where: { email, password: hashedPassword },
+    const recentFailures = await prisma.login.count({
+      where: {
+        email,
+        success: false,
+        date: { gte: new Date(Date.now() - RATE_LIMIT_WINDOW_MS) },
+      },
     });
+    if (recentFailures >= RATE_LIMIT_MAX_ATTEMPTS) {
+      return NextResponse.json(
+        { error: "Too many failed login attempts. Please try again in a few minutes." },
+        { status: 429 }
+      );
+    }
 
-    if (!user) {
+    const user = await prisma.user.findFirst({ where: { email } });
+    const passwordMatches = user ? await bcrypt.compare(password, user.password) : false;
+
+    if (!user || !passwordMatches) {
       await prisma.login.create({
         data: { email, success: false },
       });

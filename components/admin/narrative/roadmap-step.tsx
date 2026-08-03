@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import type { Report } from "@/lib/scoring";
 import { ROADMAP_GUIDANCE } from "@/lib/narrative-guidance";
 import type { RoadmapItem } from "@/components/admin/narrative/types";
+import DraftButton from "@/components/admin/narrative/draft-button";
 
 const inputClass =
   "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
@@ -19,9 +20,11 @@ type RoadmapStepProps = {
   report: Report;
   items: RoadmapItem[];
   onChange: (items: RoadmapItem[]) => void;
+  onDraft: () => void;
+  drafting: boolean;
 };
 
-export default function RoadmapStep({ report, items, onChange }: RoadmapStepProps) {
+export default function RoadmapStep({ report, items, onChange, onDraft, drafting }: RoadmapStepProps) {
   function update(index: number, patch: Partial<RoadmapItem>) {
     onChange(items.map((item, i) => (i === index ? { ...item, ...patch } : item)));
   }
@@ -61,6 +64,9 @@ export default function RoadmapStep({ report, items, onChange }: RoadmapStepProp
             {report.varianceFlags.map((f) => f.title).join(", ")}
           </p>
         )}
+      </div>
+      <div>
+        <DraftButton onDraft={onDraft} drafting={drafting} />
       </div>
       <div className="flex flex-col gap-4">
         {items.map((item, i) => (
