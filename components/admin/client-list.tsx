@@ -275,7 +275,7 @@ export default function ClientList() {
                                       {formatDateTime(key.keyUsedAt)}
                                     </td>
                                     <td className="px-2 py-1.5">
-                                      <div className="flex items-center gap-8">
+                                      <div className="flex items-center gap-12">
                                         <button
                                           type="button"
                                           title="Copy the assessment landing page URL to clipboard"
@@ -314,6 +314,10 @@ export default function ClientList() {
                                             title="Write or edit the narrative content for this report"
                                             className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                                           >
+                                            <FileText size={15} />
+                                            <span className="text-xs">
+                                              {key.narrative ? "Edit narrative" : "Write narrative"}
+                                            </span>
                                             {key.narrative?.publishedAt ? (
                                               <span className="rounded-md border border-green-200 bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-900">
                                                 Published
@@ -323,10 +327,6 @@ export default function ClientList() {
                                                 Draft
                                               </span>
                                             ) : null}
-                                            <FileText size={15} />
-                                            <span className="text-xs">
-                                              {key.narrative ? "Edit narrative" : "Write narrative"}
-                                            </span>
                                           </a>
                                         )}
                                       </div>
