@@ -216,7 +216,7 @@ export default async function ReportPage({
           <div className="flex flex-col gap-4">
             {report.stages.map((stage) => (
               <div key={stage.stageId} className="rounded-lg border border-border p-4">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-base font-semibold text-foreground">{stage.label}</h3>
                   <span
                     className={`rounded-md px-2 py-1 text-xs font-medium ${trafficLightClasses(stage.trafficLight)}`}

@@ -26,7 +26,7 @@ export default function AssessmentHeader({ activeStep }: AssessmentHeaderProps) 
         <h1 className="text-lg font-semibold text-foreground">
           AI-Native Software Development Maturity Assessment Guide
         </h1>
-        <nav className="flex items-center gap-2" aria-label="Assessment sections">
+        <nav className="flex flex-wrap items-center gap-2" aria-label="Assessment sections">
           {STEPS.map(({ id, label }) => (
             <span key={id} className={id === activeStep ? activeStepClass : inactiveStepClass}>
               {label}
