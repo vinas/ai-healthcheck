@@ -27,7 +27,7 @@ export default async function GovernanceIntroPage({
             lifecycle.
           </p>
           <p className="text-base text-foreground">
-            It&apos;s typically best answered by a CTO, VP Engineering, or
+            This is typically best answered by a CTO, VP Engineering, or
             Head of Security, since it covers organization-wide policy
             rather than day-to-day development work.
           </p>

@@ -26,7 +26,7 @@ export default async function ContextIntroPage({
             organizations similar to yours.
           </p>
           <p className="text-base text-foreground">
-            It&apos;s typically best answered by a CTO, VP Engineering, or
+            This is typically best answered by a CTO, VP Engineering, or
             equivalent, since it covers organization-wide context rather
             than any single team&apos;s work.
           </p>

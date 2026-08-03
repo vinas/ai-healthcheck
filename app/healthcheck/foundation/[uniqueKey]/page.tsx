@@ -33,7 +33,7 @@ export default async function FoundationIntroPage({
             adoption across the rest of your development process.
           </p>
           <p className="text-base text-foreground">
-            It&apos;s typically best answered by an Engineering Manager or
+            This is typically best answered by an Engineering Manager or
             DevOps/Platform Lead, since it covers tooling and infrastructure
             decisions rather than day-to-day development work.
           </p>
