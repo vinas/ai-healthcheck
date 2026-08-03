@@ -22,3 +22,7 @@ export function setAnswer(uniqueKey: string, questionId: number, optionId: numbe
   answers[String(questionId)] = optionId;
   window.sessionStorage.setItem(storageKey(uniqueKey), JSON.stringify(answers));
 }
+
+export function clearAnswers(uniqueKey: string): void {
+  window.sessionStorage.removeItem(storageKey(uniqueKey));
+}
