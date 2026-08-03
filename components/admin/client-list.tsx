@@ -4,6 +4,7 @@ import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { copyToClipboard } from "@/lib/utils";
 
 const inputClass =
   "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
@@ -236,9 +237,13 @@ export default function ClientList() {
                               </thead>
                               <tbody>
                                 {client.keys.map((key) => {
-                                  const copyKey = () => {
-                                    navigator.clipboard.writeText(key.uniqueKey);
-                                    toast.success("Key copied to clipboard");
+                                  const copyKey = async () => {
+                                    const success = await copyToClipboard(key.uniqueKey);
+                                    if (success) {
+                                      toast.success("Key copied to clipboard");
+                                      return;
+                                    }
+                                    toast.error("Couldn't copy key to clipboard");
                                   };
                                   return (
                                   <tr key={key.id} className="border-b border-border last:border-0">
@@ -273,11 +278,15 @@ export default function ClientList() {
                                         <button
                                           type="button"
                                           title="Copy the assessment landing page URL to clipboard"
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(
+                                          onClick={async () => {
+                                            const success = await copyToClipboard(
                                               `${window.location.origin}/healthcheck/landing/${key.uniqueKey}`
                                             );
-                                            toast.success("URL copied to clipboard");
+                                            if (success) {
+                                              toast.success("URL copied to clipboard");
+                                              return;
+                                            }
+                                            toast.error("Couldn't copy URL to clipboard");
                                           }}
                                           className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
                                         >
