@@ -37,6 +37,7 @@ model ClientKey {
   uniqueKey String    @unique @default(uuid()) @db.Uuid
   keyUsedAt DateTime?
   createdAt DateTime  @default(now())
+  answers   Answer[]
 }
 
 model QuestionType {
@@ -62,6 +63,7 @@ model Question {
   created        DateTime     @default(now())
   lastUpdated    DateTime     @updatedAt
   options        Option[]
+  answers        Answer[]
 }
 
 model Option {
@@ -70,4 +72,18 @@ model Option {
   question   Question @relation(fields: [questionId], references: [id])
   option     String   @db.VarChar(255)
   value      Int      @default(0)
+  answers    Answer[]
+}
+
+model Answer {
+  id          Int       @id @default(autoincrement())
+  clientKeyId Int
+  clientKey   ClientKey @relation(fields: [clientKeyId], references: [id])
+  questionId  Int
+  question    Question  @relation(fields: [questionId], references: [id])
+  optionId    Int
+  option      Option    @relation(fields: [optionId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([clientKeyId, questionId])
 }
