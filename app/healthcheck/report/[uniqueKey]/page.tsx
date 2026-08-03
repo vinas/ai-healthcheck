@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { Sparkles, Map, Compass } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { buttonVariants } from "@/components/ui/button";
-import { computeReport, type AnswerRecord, type TrafficLight } from "@/lib/scoring";
+import { computeReport, computeTrafficLight, type AnswerRecord, type TrafficLight } from "@/lib/scoring";
 import { QuestionTypeId, StageId } from "@/lib/question-taxonomy";
 
 function trafficLightClasses(light: TrafficLight | null): string {
@@ -22,6 +22,17 @@ function trafficLightClasses(light: TrafficLight | null): string {
 
 function formatLevel(level: number | null): string {
   return level == null ? "—" : level.toFixed(1);
+}
+
+function trafficLightWord(light: TrafficLight): string {
+  switch (light) {
+    case "RED":
+      return "🔴 Red";
+    case "YELLOW":
+      return "🟡 Yellow";
+    case "GREEN":
+      return "🟢 Green";
+  }
 }
 
 function effortClasses(effort: string): string {
@@ -103,6 +114,7 @@ export default async function ReportPage({
   }));
 
   const report = computeReport(answers);
+  const overallTrafficLight = report.overallLevel == null ? null : computeTrafficLight(report.overallLevel);
 
   const stageInterpretations = (narrative?.stageInterpretations as Record<string, string>) ?? {};
   const roadmap =
@@ -135,6 +147,13 @@ export default async function ReportPage({
             <span className="text-xl font-medium text-foreground">
               {report.overallLevelLabel ?? "Not available"}
             </span>
+            {overallTrafficLight && (
+              <span
+                className={`rounded-full border px-3 py-1 text-sm font-semibold ${trafficLightClasses(overallTrafficLight)}`}
+              >
+                {trafficLightWord(overallTrafficLight)}
+              </span>
+            )}
           </div>
           {report.overallLevelDescription && (
             <p className="text-base text-muted-foreground">{report.overallLevelDescription}</p>
