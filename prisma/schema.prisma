@@ -31,13 +31,14 @@ model Client {
 }
 
 model ClientKey {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   clientId  Int
-  client    Client    @relation(fields: [clientId], references: [id])
-  uniqueKey String    @unique @default(uuid()) @db.Uuid
+  client    Client     @relation(fields: [clientId], references: [id])
+  uniqueKey String     @unique @default(uuid()) @db.Uuid
   keyUsedAt DateTime?
-  createdAt DateTime  @default(now())
+  createdAt DateTime   @default(now())
   answers   Answer[]
+  narrative Narrative?
 }
 
 model QuestionType {
@@ -86,4 +87,17 @@ model Answer {
   createdAt   DateTime  @default(now())
 
   @@unique([clientKeyId, questionId])
+}
+
+model Narrative {
+  id                   Int       @id @default(autoincrement())
+  clientKeyId          Int       @unique
+  clientKey            ClientKey @relation(fields: [clientKeyId], references: [id])
+  executiveSummary     String    @default("")
+  stageInterpretations Json
+  roadmap              Json
+  benchmarkContext     String    @default("")
+  publishedAt          DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }

@@ -46,7 +46,12 @@ export async function GET(req: NextRequest) {
         orderBy: { [sortBy]: sortDir },
         skip,
         take,
-        include: { keys: { orderBy: { createdAt: "desc" } } },
+        include: {
+          keys: {
+            orderBy: { createdAt: "desc" },
+            include: { narrative: { select: { publishedAt: true } } },
+          },
+        },
       }),
       prisma.client.count({ where }),
     ]);

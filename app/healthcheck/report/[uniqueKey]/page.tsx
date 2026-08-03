@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { Sparkles, Map, Compass } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { buttonVariants } from "@/components/ui/button";
 import { computeReport, type AnswerRecord, type TrafficLight } from "@/lib/scoring";
@@ -20,6 +22,30 @@ function trafficLightClasses(light: TrafficLight | null): string {
 
 function formatLevel(level: number | null): string {
   return level == null ? "—" : level.toFixed(1);
+}
+
+function effortClasses(effort: string): string {
+  switch (effort) {
+    case "Low":
+      return "border-green-200 bg-green-50 text-green-900";
+    case "Medium":
+      return "border-yellow-200 bg-yellow-50 text-yellow-900";
+    case "High":
+      return "border-red-200 bg-red-50 text-red-900";
+    default:
+      return "border-border bg-muted/30 text-foreground";
+  }
+}
+
+function NarrativeCallout({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-3">
+      <p className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-indigo-700 uppercase">
+        <Sparkles size={13} /> {label}
+      </p>
+      <p className="text-base text-indigo-950">{children}</p>
+    </div>
+  );
 }
 
 export default async function ReportPage({
@@ -57,13 +83,16 @@ export default async function ReportPage({
     );
   }
 
-  const rawAnswers = await prisma.answer.findMany({
-    where: { clientKeyId: clientKey.id, question: { isVisible: true } },
-    include: {
-      question: { select: { question: true, questionTypeId: true, stageId: true } },
-      option: { select: { option: true, value: true } },
-    },
-  });
+  const [rawAnswers, narrative] = await prisma.$transaction([
+    prisma.answer.findMany({
+      where: { clientKeyId: clientKey.id, question: { isVisible: true } },
+      include: {
+        question: { select: { question: true, questionTypeId: true, stageId: true } },
+        option: { select: { option: true, value: true } },
+      },
+    }),
+    prisma.narrative.findUnique({ where: { clientKeyId: clientKey.id } }),
+  ]);
 
   const answers: AnswerRecord[] = rawAnswers.map((a) => ({
     questionTypeId: a.question.questionTypeId as QuestionTypeId,
@@ -75,6 +104,11 @@ export default async function ReportPage({
 
   const report = computeReport(answers);
 
+  const stageInterpretations = (narrative?.stageInterpretations as Record<string, string>) ?? {};
+  const roadmap =
+    (narrative?.roadmap as { what: string; why: string; effort: string }[]) ?? [];
+  const narrativePublished = !!narrative?.publishedAt;
+
   return (
     <main className="flex min-h-screen flex-col bg-background">
       <header className="border-b border-border px-8 py-4">
@@ -84,6 +118,13 @@ export default async function ReportPage({
       </header>
 
       <div className="flex max-w-4xl flex-col gap-10 px-8 py-6">
+        {!narrativePublished && (
+          <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-sm text-foreground">
+            Your detailed recommendations and narrative analysis are still being prepared. This
+            page will update automatically once they&apos;re ready — check back soon.
+          </div>
+        )}
+
         {/* Hero */}
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">Overall Maturity Level</p>
@@ -104,6 +145,13 @@ export default async function ReportPage({
               <span className="font-medium text-foreground">{report.trafficLightSummary.band}</span>{" "}
               ({report.trafficLightSummary.total}/12 traffic-light points)
             </p>
+          )}
+          {narrativePublished && narrative?.executiveSummary && (
+            <div className="mt-2">
+              <NarrativeCallout label="Executive Summary">
+                {narrative.executiveSummary}
+              </NarrativeCallout>
+            </div>
           )}
         </div>
 
@@ -234,10 +282,61 @@ export default async function ReportPage({
                     ))}
                   </ul>
                 )}
+                {narrativePublished && stageInterpretations[String(stage.stageId)] && (
+                  <div className="mt-3">
+                    <NarrativeCallout label="Assessment Notes">
+                      {stageInterpretations[String(stage.stageId)]}
+                    </NarrativeCallout>
+                  </div>
+                )}
               </div>
             ))}
           </div>
         </div>
+
+        {/* Recommended Roadmap */}
+        {narrativePublished && roadmap.length > 0 && (
+          <div>
+            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <Map size={18} className="text-indigo-600" /> Recommended Roadmap
+            </h2>
+            <div className="flex flex-col gap-4">
+              {roadmap.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex gap-3 rounded-lg border border-indigo-200 bg-indigo-50/60 p-4"
+                >
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                    {i + 1}
+                  </span>
+                  <div className="flex-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-base font-semibold text-indigo-950">{item.what}</p>
+                      <span
+                        className={`rounded-md border px-2 py-1 text-xs font-medium ${effortClasses(item.effort)}`}
+                      >
+                        Effort: {item.effort}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm text-indigo-900">{item.why}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Benchmark Context */}
+        {narrativePublished && narrative?.benchmarkContext && (
+          <div>
+            <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-foreground">
+              <Compass size={18} className="text-indigo-600" /> Benchmark Context
+            </h2>
+            <NarrativeCallout label="How you compare">
+              {narrative.benchmarkContext}
+            </NarrativeCallout>
+          </div>
+        )}
       </div>
     </main>
   );

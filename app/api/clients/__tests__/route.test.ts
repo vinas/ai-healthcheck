@@ -1,12 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest, NextResponse } from "next/server";
-import { POST } from "../route";
+import { GET, POST } from "../route";
 
 vi.mock("@/lib/prisma", () => ({
   prisma: {
     client: {
       create: vi.fn(),
+      findMany: vi.fn(),
+      count: vi.fn(),
     },
+    $transaction: vi.fn(),
   },
 }));
 
@@ -18,7 +21,14 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
 const mockCreate = prisma.client.create as ReturnType<typeof vi.fn>;
+const mockFindMany = prisma.client.findMany as ReturnType<typeof vi.fn>;
+const mockCount = prisma.client.count as ReturnType<typeof vi.fn>;
+const mockTransaction = prisma.$transaction as ReturnType<typeof vi.fn>;
 const mockRequireAuth = requireAuth as ReturnType<typeof vi.fn>;
+
+function makeGetRequest(query = "") {
+  return new NextRequest(`http://localhost/api/clients${query}`);
+}
 
 function makeRequest(body: unknown) {
   return new NextRequest("http://localhost/api/clients", {
@@ -54,6 +64,27 @@ const createdClient = {
 beforeEach(() => {
   vi.clearAllMocks();
   mockRequireAuth.mockResolvedValue(null);
+  mockTransaction.mockImplementation((queries: Promise<unknown>[]) => Promise.all(queries));
+});
+
+describe("GET /api/clients", () => {
+  it("includes each key's narrative publish status in the keys include", async () => {
+    mockFindMany.mockResolvedValueOnce([createdClient]);
+    mockCount.mockResolvedValueOnce(1);
+
+    await GET(makeGetRequest());
+
+    expect(mockFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        include: {
+          keys: {
+            orderBy: { createdAt: "desc" },
+            include: { narrative: { select: { publishedAt: true } } },
+          },
+        },
+      })
+    );
+  });
 });
 
 describe("POST /api/clients", () => {

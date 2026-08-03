@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronUp, ChevronDown, Copy, ExternalLink } from "lucide-react";
+import { ChevronUp, ChevronDown, Copy, ExternalLink, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { copyToClipboard } from "@/lib/utils";
 
@@ -17,6 +17,7 @@ type ClientKey = {
   uniqueKey: string;
   keyUsedAt: string | null;
   createdAt: string;
+  narrative: { publishedAt: string | null } | null;
 };
 
 type Client = {
@@ -303,6 +304,29 @@ export default function ClientList() {
                                           >
                                             <ExternalLink size={15} />
                                             <span className="text-xs">Open report</span>
+                                          </a>
+                                        )}
+                                        {key.keyUsedAt && (
+                                          <a
+                                            href={`/admin/narratives/${key.uniqueKey}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title="Write or edit the narrative content for this report"
+                                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                                          >
+                                            {key.narrative?.publishedAt ? (
+                                              <span className="rounded-md border border-green-200 bg-green-50 px-1.5 py-0.5 text-[10px] font-medium text-green-900">
+                                                Published
+                                              </span>
+                                            ) : key.narrative ? (
+                                              <span className="rounded-md border border-yellow-200 bg-yellow-50 px-1.5 py-0.5 text-[10px] font-medium text-yellow-900">
+                                                Draft
+                                              </span>
+                                            ) : null}
+                                            <FileText size={15} />
+                                            <span className="text-xs">
+                                              {key.narrative ? "Edit narrative" : "Write narrative"}
+                                            </span>
                                           </a>
                                         )}
                                       </div>
