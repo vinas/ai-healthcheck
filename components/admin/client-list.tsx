@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ChevronUp, ChevronDown, Copy } from "lucide-react";
+import { ChevronUp, ChevronDown, Copy, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const inputClass =
@@ -44,10 +44,6 @@ const COLUMN_COUNT = COLUMNS.length + 2; // + Keys count column + actions column
 function formatDateTime(value: string | null): string {
   if (!value) return "—";
   return new Date(value).toLocaleString();
-}
-
-function formatUniqueKey(value: string): string {
-  return value.slice(0, 8);
 }
 
 export default function ClientList() {
@@ -239,10 +235,32 @@ export default function ClientList() {
                                 </tr>
                               </thead>
                               <tbody>
-                                {client.keys.map((key) => (
+                                {client.keys.map((key) => {
+                                  const copyKey = () => {
+                                    navigator.clipboard.writeText(key.uniqueKey);
+                                    toast.success("Key copied to clipboard");
+                                  };
+                                  return (
                                   <tr key={key.id} className="border-b border-border last:border-0">
-                                    <td className="px-2 py-1.5 font-mono text-foreground" title={key.uniqueKey}>
-                                      {formatUniqueKey(key.uniqueKey)}…
+                                    <td className="px-2 py-1.5 font-mono text-foreground">
+                                      <div className="flex items-center gap-1.5">
+                                        <button
+                                          type="button"
+                                          title="Copy the unique key to clipboard"
+                                          onClick={copyKey}
+                                          className="hover:text-foreground/70"
+                                        >
+                                          {key.uniqueKey}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          title="Copy the unique key to clipboard"
+                                          onClick={copyKey}
+                                          className="text-muted-foreground hover:text-foreground"
+                                        >
+                                          <Copy size={13} />
+                                        </button>
+                                      </div>
                                     </td>
                                     <td className="px-2 py-1.5 text-foreground">
                                       {formatDateTime(key.createdAt)}
@@ -251,22 +269,38 @@ export default function ClientList() {
                                       {formatDateTime(key.keyUsedAt)}
                                     </td>
                                     <td className="px-2 py-1.5">
-                                      <button
-                                        type="button"
-                                        title="Copy URL to clipboard"
-                                        onClick={() => {
-                                          navigator.clipboard.writeText(
-                                            `${window.location.origin}/healthcheck/landing/${key.uniqueKey}`
-                                          );
-                                          toast.success("URL copied to clipboard");
-                                        }}
-                                        className="text-muted-foreground hover:text-foreground"
-                                      >
-                                        <Copy size={15} />
-                                      </button>
+                                      <div className="flex items-center gap-8">
+                                        <button
+                                          type="button"
+                                          title="Copy the assessment landing page URL to clipboard"
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(
+                                              `${window.location.origin}/healthcheck/landing/${key.uniqueKey}`
+                                            );
+                                            toast.success("URL copied to clipboard");
+                                          }}
+                                          className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                                        >
+                                          <Copy size={15} />
+                                          <span className="text-xs">Copy assessment link</span>
+                                        </button>
+                                        {key.keyUsedAt && (
+                                          <a
+                                            href={`/healthcheck/report/${key.uniqueKey}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            title="Open the generated report in a new tab"
+                                            className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground"
+                                          >
+                                            <ExternalLink size={15} />
+                                            <span className="text-xs">Open report</span>
+                                          </a>
+                                        )}
+                                      </div>
                                     </td>
                                   </tr>
-                                ))}
+                                  );
+                                })}
                               </tbody>
                             </table>
                           )}
