@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
+import { NextResponse } from "next/server";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Sparkles, Map, Compass } from "lucide-react";
-import { prisma } from "@/lib/prisma";
 import { buttonVariants } from "@/components/ui/button";
-import { computeReport, computeTrafficLight, type AnswerRecord, type TrafficLight } from "@/lib/scoring";
-import { QuestionTypeId, StageId } from "@/lib/question-taxonomy";
+import { computeTrafficLight, type TrafficLight } from "@/lib/scoring";
+import { loadNarrativeContext } from "@/lib/narrative-lookup";
 
 function trafficLightClasses(light: TrafficLight | null): string {
   switch (light) {
@@ -66,12 +66,12 @@ export default async function ReportPage({
 }) {
   const { uniqueKey } = await params;
 
-  const clientKey = await prisma.clientKey.findUnique({ where: { uniqueKey } });
-  if (!clientKey) {
-    notFound();
-  }
+  const context = await loadNarrativeContext(uniqueKey);
+  if (context instanceof NextResponse) {
+    if (context.status === 404) {
+      notFound();
+    }
 
-  if (!clientKey.keyUsedAt) {
     return (
       <main className="flex min-h-screen flex-col bg-background">
         <header className="border-b border-border px-8 py-4">
@@ -94,26 +94,8 @@ export default async function ReportPage({
     );
   }
 
-  const [rawAnswers, narrative] = await prisma.$transaction([
-    prisma.answer.findMany({
-      where: { clientKeyId: clientKey.id, question: { isVisible: true } },
-      include: {
-        question: { select: { question: true, questionTypeId: true, stageId: true } },
-        option: { select: { option: true, value: true } },
-      },
-    }),
-    prisma.narrative.findUnique({ where: { clientKeyId: clientKey.id } }),
-  ]);
-
-  const answers: AnswerRecord[] = rawAnswers.map((a) => ({
-    questionTypeId: a.question.questionTypeId as QuestionTypeId,
-    stageId: a.question.stageId as StageId | null,
-    questionText: a.question.question,
-    optionText: a.option.option,
-    value: a.option.value,
-  }));
-
-  const report = computeReport(answers);
+  const { clientKey, report } = context;
+  const narrative = clientKey.narrative;
   const overallTrafficLight = report.overallLevel == null ? null : computeTrafficLight(report.overallLevel);
 
   const stageInterpretations = (narrative?.stageInterpretations as Record<string, string>) ?? {};
