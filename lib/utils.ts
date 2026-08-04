@@ -5,6 +5,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+export type StatusLevel = "good" | "warn" | "bad";
+
+export function statusClasses(level: StatusLevel): string {
+  switch (level) {
+    case "good":
+      return "border-green-200 bg-green-50 text-green-900";
+    case "warn":
+      return "border-yellow-200 bg-yellow-50 text-yellow-900";
+    case "bad":
+      return "border-red-200 bg-red-50 text-red-900";
+  }
+}
+
 // navigator.clipboard requires a secure context (HTTPS, or localhost on desktop).
 // Accessing the app over http://<lan-ip>: from a phone doesn't qualify, so it's
 // undefined there and needs a execCommand fallback instead.

@@ -6,15 +6,16 @@ import { Sparkles, Map, Compass } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { computeTrafficLight, type TrafficLight } from "@/lib/scoring";
 import { loadNarrativeContext } from "@/lib/narrative-lookup";
+import { statusClasses } from "@/lib/utils";
 
 function trafficLightClasses(light: TrafficLight | null): string {
   switch (light) {
     case "RED":
-      return "border-red-200 bg-red-50 text-red-900";
+      return statusClasses("bad");
     case "YELLOW":
-      return "border-yellow-200 bg-yellow-50 text-yellow-900";
+      return statusClasses("warn");
     case "GREEN":
-      return "border-green-200 bg-green-50 text-green-900";
+      return statusClasses("good");
     default:
       return "border-border bg-muted/30 text-muted-foreground";
   }
@@ -38,11 +39,11 @@ function trafficLightWord(light: TrafficLight): string {
 function effortClasses(effort: string): string {
   switch (effort) {
     case "Low":
-      return "border-green-200 bg-green-50 text-green-900";
+      return statusClasses("good");
     case "Medium":
-      return "border-yellow-200 bg-yellow-50 text-yellow-900";
+      return statusClasses("warn");
     case "High":
-      return "border-red-200 bg-red-50 text-red-900";
+      return statusClasses("bad");
     default:
       return "border-border bg-muted/30 text-foreground";
   }
