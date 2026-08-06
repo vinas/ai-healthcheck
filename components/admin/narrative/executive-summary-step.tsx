@@ -3,9 +3,7 @@
 import type { Report } from "@/lib/scoring";
 import { WRITING_GUIDELINES } from "@/lib/narrative-guidance";
 import DraftButton from "@/components/admin/narrative/draft-button";
-
-const textareaClass =
-  "min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
+import { Textarea } from "@/components/ui/textarea";
 
 type ExecutiveSummaryStepProps = {
   report: Report;
@@ -70,11 +68,11 @@ export default function ExecutiveSummaryStep({
       <div>
         <DraftButton onDraft={onDraft} drafting={drafting} />
       </div>
-      <textarea
+      <Textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="e.g. Overall AI adoption sits at a solid AI-Assisted level, driven by strong implementation and testing practices..."
-        className={textareaClass}
+        className="min-h-[120px]"
       />
     </div>
   );

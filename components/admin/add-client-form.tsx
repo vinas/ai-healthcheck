@@ -4,9 +4,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-const inputClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
+import { Input } from "@/components/ui/input";
+import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from "@/components/ui/collapsible";
 
 export default function AddClientForm() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,22 +62,22 @@ export default function AddClientForm() {
   }
 
   return (
-    <div className="max-w-lg rounded-lg border border-border">
-      <button
-        type="button"
-        onClick={() => setIsOpen((v) => !v)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left"
-      >
+    <Collapsible
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      className="max-w-lg rounded-lg border border-border"
+    >
+      <CollapsibleTrigger>
         <span className="text-base font-semibold text-foreground">
           New Client
         </span>
         <ChevronDown
           size={18}
-          className={`text-muted-foreground transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+          className="text-muted-foreground transition-transform duration-200 group-data-panel-open:rotate-180"
         />
-      </button>
+      </CollapsibleTrigger>
 
-      {isOpen && (
+      <CollapsiblePanel>
         <form
           onSubmit={handleSubmit}
           className="flex flex-col gap-4 border-t border-border px-4 py-4"
@@ -87,13 +86,12 @@ export default function AddClientForm() {
             <label htmlFor="name" className="text-sm font-medium text-foreground">
               Company name <span className="text-destructive">*</span>
             </label>
-            <input
+            <Input
               id="name"
               type="text"
               placeholder="Acme Corp"
               value={name}
               onChange={(e) => { setName(e.target.value); setNameError(""); }}
-              className={inputClass}
             />
             {nameError && (
               <p className="text-sm text-destructive">{nameError}</p>
@@ -107,13 +105,12 @@ export default function AddClientForm() {
             >
               Contact name
             </label>
-            <input
+            <Input
               id="contactPersonName"
               type="text"
               placeholder="Jane Doe"
               value={contactPersonName}
               onChange={(e) => setContactPersonName(e.target.value)}
-              className={inputClass}
             />
           </div>
 
@@ -127,13 +124,12 @@ export default function AddClientForm() {
                 (at least one of email or phone required)
               </span>
             </label>
-            <input
+            <Input
               id="contactPersonEmail"
               type="email"
               placeholder="jane@acme.com"
               value={contactPersonEmail}
               onChange={(e) => { setContactPersonEmail(e.target.value); setContactError(""); }}
-              className={inputClass}
             />
           </div>
 
@@ -144,13 +140,12 @@ export default function AddClientForm() {
             >
               Contact phone
             </label>
-            <input
+            <Input
               id="contactPersonPhone"
               type="tel"
               placeholder="+1234567890"
               value={contactPersonPhone}
               onChange={(e) => { setContactPersonPhone(e.target.value); setContactError(""); }}
-              className={inputClass}
             />
             {contactError && (
               <p className="text-sm text-destructive">{contactError}</p>
@@ -163,7 +158,7 @@ export default function AddClientForm() {
             </Button>
           </div>
         </form>
-      )}
-    </div>
+      </CollapsiblePanel>
+    </Collapsible>
   );
 }

@@ -4,19 +4,10 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { QuestionTypeId } from "@/lib/question-taxonomy";
-
-const inputClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const textareaClass =
-  "min-h-[72px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const selectClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const numberInputClass =
-  "h-9 w-20 rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
 
 export type Lookup = { id: number; label: string };
 export type OptionDTO = { id: number; option: string; value: number };
@@ -78,8 +69,7 @@ export default function QuestionForm({
 
   const isStagesType = questionTypeId === QuestionTypeId.Stages;
 
-  function handleQuestionTypeChange(value: string) {
-    const nextId = value === "" ? "" : Number(value);
+  function handleQuestionTypeChange(nextId: number | "") {
     setQuestionTypeId(nextId);
     setQuestionTypeError("");
     if (nextId !== QuestionTypeId.Stages) {
@@ -193,7 +183,7 @@ export default function QuestionForm({
         <label htmlFor={`question-${mode}`} className="text-sm font-medium text-foreground">
           Question <span className="text-destructive">*</span>
         </label>
-        <textarea
+        <Textarea
           id={`question-${mode}`}
           placeholder="How is AI currently used when..."
           value={questionText}
@@ -201,7 +191,6 @@ export default function QuestionForm({
             setQuestionText(e.target.value);
             setQuestionError("");
           }}
-          className={textareaClass}
         />
         {questionError && <p className="text-sm text-destructive">{questionError}</p>}
       </div>
@@ -211,18 +200,23 @@ export default function QuestionForm({
           <label className="text-sm font-medium text-foreground">
             Question type <span className="text-destructive">*</span>
           </label>
-          <select
-            value={questionTypeId}
-            onChange={(e) => handleQuestionTypeChange(e.target.value)}
-            className={selectClass}
+          <Select
+            value={questionTypeId === "" ? null : questionTypeId}
+            onValueChange={(v: number | null) => handleQuestionTypeChange(v ?? "")}
           >
-            <option value="">Select a type…</option>
-            {questionTypes.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a type…">
+                {(v: number | null) => questionTypes.find((t) => t.id === v)?.label}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {questionTypes.map((t) => (
+                <SelectItem key={t.id} value={t.id}>
+                  {t.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {questionTypeError && <p className="text-sm text-destructive">{questionTypeError}</p>}
         </div>
 
@@ -231,21 +225,26 @@ export default function QuestionForm({
             <label className="text-sm font-medium text-foreground">
               Stage <span className="text-destructive">*</span>
             </label>
-            <select
-              value={stageId}
-              onChange={(e) => {
-                setStageId(e.target.value === "" ? "" : Number(e.target.value));
+            <Select
+              value={stageId === "" ? null : stageId}
+              onValueChange={(v: number | null) => {
+                setStageId(v ?? "");
                 setStageError("");
               }}
-              className={selectClass}
             >
-              <option value="">Select a stage…</option>
-              {stages.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.label}
-                </option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a stage…">
+                  {(v: number | null) => stages.find((s) => s.id === v)?.label}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {stages.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>
+                    {s.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {stageError && <p className="text-sm text-destructive">{stageError}</p>}
           </div>
         )}
@@ -258,18 +257,17 @@ export default function QuestionForm({
         <div className="flex flex-col gap-2">
           {options.map((opt, i) => (
             <div key={opt.id ?? `new-${i}`} className="flex items-center gap-2">
-              <input
+              <Input
                 type="text"
                 placeholder={`Option ${i + 1}`}
                 value={opt.option}
                 onChange={(e) => updateOption(i, { option: e.target.value })}
-                className={inputClass}
               />
-              <input
+              <Input
                 type="number"
                 value={opt.value}
                 onChange={(e) => updateOption(i, { value: Number(e.target.value) })}
-                className={numberInputClass}
+                className="w-20 px-2"
               />
               <Button
                 type="button"

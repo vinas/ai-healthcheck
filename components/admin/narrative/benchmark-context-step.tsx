@@ -3,9 +3,7 @@
 import type { ContextAnswer } from "@/components/admin/narrative/types";
 import { BENCHMARK_GUIDANCE, computeCalibrationNotes } from "@/lib/narrative-guidance";
 import DraftButton from "@/components/admin/narrative/draft-button";
-
-const textareaClass =
-  "min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
+import { Textarea } from "@/components/ui/textarea";
 
 type BenchmarkContextStepProps = {
   contextAnswers: ContextAnswer[];
@@ -61,7 +59,7 @@ export default function BenchmarkContextStep({
       <div>
         <DraftButton onDraft={onDraft} drafting={drafting} />
       </div>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} className={textareaClass} />
+      <Textarea value={value} onChange={(e) => onChange(e.target.value)} className="min-h-[120px]" />
     </div>
   );
 }

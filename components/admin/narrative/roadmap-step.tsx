@@ -2,19 +2,13 @@
 
 import { Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import type { Report } from "@/lib/scoring";
 import { ROADMAP_GUIDANCE } from "@/lib/narrative-guidance";
 import type { RoadmapItem } from "@/components/admin/narrative/types";
 import DraftButton from "@/components/admin/narrative/draft-button";
-
-const inputClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const textareaClass =
-  "min-h-[72px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const selectClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
 
 type RoadmapStepProps = {
   report: Report;
@@ -83,28 +77,34 @@ export default function RoadmapStep({ report, items, onChange, onDraft, drafting
                 <X size={14} />
               </Button>
             </div>
-            <input
+            <Input
               type="text"
               placeholder="What to do"
               value={item.what}
               onChange={(e) => update(i, { what: e.target.value })}
-              className={inputClass}
             />
-            <textarea
+            <Textarea
               placeholder="Why it matters"
               value={item.why}
               onChange={(e) => update(i, { why: e.target.value })}
-              className={textareaClass}
             />
-            <select
+            <Select
               value={item.effort}
-              onChange={(e) => update(i, { effort: e.target.value as RoadmapItem["effort"] })}
-              className={selectClass}
+              onValueChange={(v: RoadmapItem["effort"] | null) => {
+                if (v) update(i, { effort: v });
+              }}
             >
-              <option value="Low">Effort: Low</option>
-              <option value="Medium">Effort: Medium</option>
-              <option value="High">Effort: High</option>
-            </select>
+              <SelectTrigger className="w-full">
+                <SelectValue>
+                  {(v: RoadmapItem["effort"]) => `Effort: ${v}`}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Low">Effort: Low</SelectItem>
+                <SelectItem value="Medium">Effort: Medium</SelectItem>
+                <SelectItem value="High">Effort: High</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         ))}
         {items.length === 0 && (

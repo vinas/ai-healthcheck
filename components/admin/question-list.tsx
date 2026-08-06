@@ -3,6 +3,7 @@
 import { Fragment, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import QuestionForm, { type Lookup, type QuestionDTO } from "./question-form";
 
 type QuestionListProps = {
@@ -49,44 +50,40 @@ export default function QuestionList({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-border bg-muted/50">
-            <th className="px-4 py-2 text-left font-medium text-foreground">ID</th>
-            <th className="px-4 py-2 text-left font-medium text-foreground">Type</th>
-            <th className="px-4 py-2 text-left font-medium text-foreground">Stage</th>
-            <th className="px-4 py-2 text-left font-medium text-foreground">Question</th>
-            <th className="px-4 py-2 text-left font-medium text-foreground">Options</th>
-            <th className="px-4 py-2 text-left font-medium text-foreground">Visibility</th>
-            <th className="px-4 py-2" />
-          </tr>
-        </thead>
-        <tbody className={loading ? "opacity-50" : ""}>
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/50">
+            <TableHead>ID</TableHead>
+            <TableHead>Type</TableHead>
+            <TableHead>Stage</TableHead>
+            <TableHead>Question</TableHead>
+            <TableHead>Options</TableHead>
+            <TableHead>Visibility</TableHead>
+            <TableHead />
+          </TableRow>
+        </TableHeader>
+        <TableBody className={loading ? "opacity-50" : ""}>
           {questions.length === 0 ? (
-            <tr>
-              <td colSpan={COLUMN_COUNT} className="px-4 py-6 text-center text-muted-foreground">
+            <TableRow>
+              <TableCell colSpan={COLUMN_COUNT} className="py-6 text-center text-muted-foreground">
                 No questions found.
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ) : (
             questions.map((q) => (
               <Fragment key={q.id}>
-                <tr
-                  className={`border-b border-border last:border-0 hover:bg-muted/30 ${
-                    q.isVisible ? "" : "opacity-50"
-                  }`}
-                >
-                  <td className="px-4 py-2 text-foreground">{q.id}</td>
-                  <td className="px-4 py-2 text-foreground">{q.questionType.label}</td>
-                  <td className="px-4 py-2 text-foreground">{q.stage?.label ?? "—"}</td>
-                  <td className="px-4 py-2 text-foreground" title={q.question}>
+                <TableRow className={q.isVisible ? "" : "opacity-50"}>
+                  <TableCell>{q.id}</TableCell>
+                  <TableCell>{q.questionType.label}</TableCell>
+                  <TableCell>{q.stage?.label ?? "—"}</TableCell>
+                  <TableCell title={q.question}>
                     {q.question}
-                  </td>
-                  <td className="px-4 py-2 text-foreground">{q.options.length}</td>
-                  <td className="px-4 py-2 text-foreground">
+                  </TableCell>
+                  <TableCell>{q.options.length}</TableCell>
+                  <TableCell>
                     {q.isVisible ? "Visible" : "Hidden"}
-                  </td>
-                  <td className="px-4 py-2">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex justify-end gap-2">
                       <Button
                         type="button"
@@ -106,11 +103,11 @@ export default function QuestionList({
                         {q.isVisible ? "Delete" : "Restore"}
                       </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
                 {editingId === q.id && (
-                  <tr className="border-b border-border last:border-0 bg-muted/20">
-                    <td colSpan={COLUMN_COUNT} className="px-4 py-4">
+                  <TableRow className="bg-muted/20">
+                    <TableCell colSpan={COLUMN_COUNT} className="py-4">
                       <QuestionForm
                         mode="edit"
                         initialQuestion={q}
@@ -119,14 +116,14 @@ export default function QuestionList({
                         onSaved={onSaved}
                         onCancel={() => setEditingId(null)}
                       />
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 )}
               </Fragment>
             ))
           )}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }

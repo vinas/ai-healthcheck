@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from "@/components/ui/collapsible";
 import QuestionForm, { type Lookup, type QuestionDTO } from "./question-form";
 import QuestionList from "./question-list";
 
@@ -48,20 +49,20 @@ export default function QuestionsManager() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="max-w-2xl rounded-lg border border-border">
-        <button
-          type="button"
-          onClick={() => setIsAddOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-4 py-3 text-left"
-        >
+      <Collapsible
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        className="max-w-2xl rounded-lg border border-border"
+      >
+        <CollapsibleTrigger>
           <span className="text-base font-semibold text-foreground">New Question</span>
           <ChevronDown
             size={18}
-            className={`text-muted-foreground transition-transform duration-200 ${isAddOpen ? "rotate-180" : ""}`}
+            className="text-muted-foreground transition-transform duration-200 group-data-panel-open:rotate-180"
           />
-        </button>
+        </CollapsibleTrigger>
 
-        {isAddOpen && (
+        <CollapsiblePanel>
           <div className="border-t border-border px-4 py-4">
             <QuestionForm
               mode="create"
@@ -70,8 +71,8 @@ export default function QuestionsManager() {
               onSaved={handleSaved}
             />
           </div>
-        )}
-      </div>
+        </CollapsiblePanel>
+      </Collapsible>
 
       <div>
         <h2 className="mb-4 text-lg font-semibold text-foreground">Questions</h2>

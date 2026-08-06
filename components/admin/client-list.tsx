@@ -4,13 +4,10 @@ import { Fragment, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ChevronUp, ChevronDown, Copy, ExternalLink, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { copyToClipboard } from "@/lib/utils";
-
-const inputClass =
-  "h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
-
-const selectClass =
-  "h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:border-ring";
 
 type ClientKey = {
   id: number;
@@ -138,23 +135,19 @@ export default function ClientList() {
 
   return (
     <div className="flex flex-col gap-4">
-      <input
+      <Input
         type="text"
         placeholder="Search across all fields…"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        className={inputClass}
       />
 
       <div className="overflow-x-auto rounded-lg border border-border">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/50">
               {COLUMNS.map(({ field, label }) => (
-                <th
-                  key={field}
-                  className="px-4 py-2 text-left font-medium text-foreground"
-                >
+                <TableHead key={field}>
                   <button
                     type="button"
                     onClick={() => handleSort(field)}
@@ -171,35 +164,35 @@ export default function ClientList() {
                       <ChevronDown size={14} className="opacity-30" />
                     )}
                   </button>
-                </th>
+                </TableHead>
               ))}
-              <th className="px-4 py-2 text-left font-medium text-foreground">Keys</th>
-              <th className="px-4 py-2" />
-            </tr>
-          </thead>
-          <tbody className={loading ? "opacity-50" : ""}>
+              <TableHead>Keys</TableHead>
+              <TableHead />
+            </TableRow>
+          </TableHeader>
+          <TableBody className={loading ? "opacity-50" : ""}>
             {clients.length === 0 ? (
-              <tr>
-                <td
+              <TableRow>
+                <TableCell
                   colSpan={COLUMN_COUNT}
-                  className="px-4 py-6 text-center text-muted-foreground"
+                  className="py-6 text-center text-muted-foreground"
                 >
                   No clients found.
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             ) : (
               clients.map((client) => (
                 <Fragment key={client.id}>
-                  <tr className="border-b border-border last:border-0 hover:bg-muted/30">
-                    <td className="px-4 py-2 text-foreground">{client.id}</td>
-                    <td className="px-4 py-2 text-foreground">{client.name}</td>
-                    <td className="px-4 py-2 text-foreground">{client.contactPersonName ?? "—"}</td>
-                    <td className="px-4 py-2 text-foreground">{client.contactPersonEmail ?? "—"}</td>
-                    <td className="px-4 py-2 text-foreground">{client.contactPersonPhone ?? "—"}</td>
-                    <td className="px-4 py-2 text-foreground">
+                  <TableRow>
+                    <TableCell>{client.id}</TableCell>
+                    <TableCell>{client.name}</TableCell>
+                    <TableCell>{client.contactPersonName ?? "—"}</TableCell>
+                    <TableCell>{client.contactPersonEmail ?? "—"}</TableCell>
+                    <TableCell>{client.contactPersonPhone ?? "—"}</TableCell>
+                    <TableCell>
                       {client.keys.length} key{client.keys.length === 1 ? "" : "s"}
-                    </td>
-                    <td className="px-4 py-2">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex justify-end">
                         <Button
                           type="button"
@@ -212,31 +205,31 @@ export default function ClientList() {
                           {expandedId === client.id ? "Hide" : "Keys"}
                         </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                   {expandedId === client.id && (
-                    <tr className="border-b border-border last:border-0 bg-muted/20">
-                      <td colSpan={COLUMN_COUNT} className="px-4 py-4">
+                    <TableRow className="bg-muted/20">
+                      <TableCell colSpan={COLUMN_COUNT} className="py-4">
                         <div className="flex flex-col gap-3">
                           {client.keys.length === 0 ? (
                             <p className="text-sm text-muted-foreground">No keys yet.</p>
                           ) : (
-                            <table className="w-full text-sm">
-                              <thead>
-                                <tr className="border-b border-border">
-                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="px-2 py-1.5">
                                     Unique Key
-                                  </th>
-                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                                  </TableHead>
+                                  <TableHead className="px-2 py-1.5">
                                     Created At
-                                  </th>
-                                  <th className="px-2 py-1.5 text-left font-medium text-foreground">
+                                  </TableHead>
+                                  <TableHead className="px-2 py-1.5">
                                     Key Used At
-                                  </th>
-                                  <th className="px-2 py-1.5" />
-                                </tr>
-                              </thead>
-                              <tbody>
+                                  </TableHead>
+                                  <TableHead className="px-2 py-1.5" />
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
                                 {client.keys.map((key) => {
                                   const copyKey = async () => {
                                     const success = await copyToClipboard(key.uniqueKey);
@@ -247,8 +240,8 @@ export default function ClientList() {
                                     toast.error("Couldn't copy key to clipboard");
                                   };
                                   return (
-                                  <tr key={key.id} className="border-b border-border last:border-0">
-                                    <td className="px-2 py-1.5 font-mono text-foreground">
+                                  <TableRow key={key.id}>
+                                    <TableCell className="px-2 py-1.5 font-mono">
                                       <div className="flex items-center gap-1.5">
                                         <button
                                           type="button"
@@ -267,14 +260,14 @@ export default function ClientList() {
                                           <Copy size={13} />
                                         </button>
                                       </div>
-                                    </td>
-                                    <td className="px-2 py-1.5 text-foreground">
+                                    </TableCell>
+                                    <TableCell className="px-2 py-1.5">
                                       {formatDateTime(key.createdAt)}
-                                    </td>
-                                    <td className="px-2 py-1.5 text-foreground">
+                                    </TableCell>
+                                    <TableCell className="px-2 py-1.5">
                                       {formatDateTime(key.keyUsedAt)}
-                                    </td>
-                                    <td className="px-2 py-1.5">
+                                    </TableCell>
+                                    <TableCell className="px-2 py-1.5">
                                       <div className="flex items-center gap-12">
                                         <button
                                           type="button"
@@ -330,12 +323,12 @@ export default function ClientList() {
                                           </a>
                                         )}
                                       </div>
-                                    </td>
-                                  </tr>
+                                    </TableCell>
+                                  </TableRow>
                                   );
                                 })}
-                              </tbody>
-                            </table>
+                              </TableBody>
+                            </Table>
                           )}
                           <div>
                             <Button
@@ -349,33 +342,37 @@ export default function ClientList() {
                             </Button>
                           </div>
                         </div>
-                      </td>
-                    </tr>
+                      </TableCell>
+                    </TableRow>
                   )}
                 </Fragment>
               ))
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span>Rows per page:</span>
-          <select
+          <Select
             value={String(pageSize)}
-            onChange={(e) => {
-              const v = e.target.value;
+            onValueChange={(v: string | null) => {
+              if (v === null) return;
               setPageSize(v === "all" ? "all" : (Number(v) as PageSize));
               setPage(1);
             }}
-            className={selectClass}
           >
-            {[10, 20, 50, 100].map((n) => (
-              <option key={n} value={n}>{n}</option>
-            ))}
-            <option value="all">All</option>
-          </select>
+            <SelectTrigger>
+              <SelectValue>{(v: string) => (v === "all" ? "All" : v)}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {[10, 20, 50, 100].map((n) => (
+                <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+              ))}
+              <SelectItem value="all">All</SelectItem>
+            </SelectContent>
+          </Select>
           <span>{total} total</span>
         </div>
 
