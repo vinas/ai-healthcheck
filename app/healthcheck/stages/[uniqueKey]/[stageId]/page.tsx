@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
 import AssessmentHeader from "@/components/healthcheck/assessment-header";
 import StepIntroduction from "@/components/healthcheck/step-introduction";
 import AssessmentFooter from "@/components/healthcheck/assessment-footer";
 import { prisma } from "@/lib/prisma";
 import { QuestionTypeId, StageId } from "@/lib/question-taxonomy";
+import { getStageOrNotFound } from "@/lib/assessment-question";
 
 const STAGE_INTRO_COPY: Record<StageId, string[]> = {
   [StageId.DemandDefinition]: [
@@ -39,15 +39,7 @@ export default async function StageIntroPage({
   params: Promise<{ uniqueKey: string; stageId: string }>;
 }) {
   const { uniqueKey, stageId: stageIdParam } = await params;
-  const stageIdNum = Number(stageIdParam);
-
-  const stage = Number.isInteger(stageIdNum)
-    ? await prisma.stage.findUnique({ where: { id: stageIdNum } })
-    : null;
-
-  if (!stage) {
-    notFound();
-  }
+  const { stageIdNum, stage } = await getStageOrNotFound(stageIdParam);
 
   const paragraphs = STAGE_INTRO_COPY[stageIdNum as StageId];
 

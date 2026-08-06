@@ -2,13 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { validateQuestionPayload, type OptionPayload } from "@/lib/validate-question";
-import { QuestionTypeId } from "@/lib/question-taxonomy";
-
-const QUESTION_INCLUDE = {
-  questionType: true,
-  stage: true,
-  options: { orderBy: { id: "asc" as const } },
-};
+import { QUESTION_INCLUDE, resolveStageId } from "@/lib/question-include";
 
 export async function GET() {
   try {
@@ -55,7 +49,7 @@ export async function POST(req: NextRequest) {
     const questionType = await prisma.questionType.findUnique({
       where: { id: questionTypeId },
     });
-    const finalStageId = questionType?.id === QuestionTypeId.Stages ? stageId : null;
+    const finalStageId = resolveStageId(questionType?.id, stageId);
 
     const created = await prisma.question.create({
       data: {
