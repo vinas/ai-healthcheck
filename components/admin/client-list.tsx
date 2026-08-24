@@ -202,7 +202,7 @@ export default function ClientList() {
                             setExpandedId(expandedId === client.id ? null : client.id)
                           }
                         >
-                          {expandedId === client.id ? "Hide" : "Keys"}
+                          {expandedId === client.id ? "Hide" : "Assessments"}
                         </Button>
                       </div>
                     </TableCell>
