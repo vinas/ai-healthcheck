@@ -7,6 +7,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { computeTrafficLight, type TrafficLight } from "@/lib/scoring";
 import { loadNarrativeContext } from "@/lib/narrative-lookup";
 import { statusClasses } from "@/lib/utils";
+import { StageLevelChart } from "@/components/report/stage-level-chart";
 
 function trafficLightClasses(light: TrafficLight | null): string {
   switch (light) {
@@ -157,48 +158,8 @@ export default async function ReportPage({
           )}
         </div>
 
-        {/* Top strengths / gaps */}
-        {(report.topStrengths.length > 0 || report.topGaps.length > 0) && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <h2 className="mb-2 text-base font-semibold text-foreground">Top Strengths</h2>
-              <ul className="flex flex-col gap-1">
-                {report.topStrengths.map((s) => (
-                  <li key={s.stageLabel} className="text-sm text-foreground">
-                    {s.stageLabel} — {s.level.toFixed(1)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h2 className="mb-2 text-base font-semibold text-foreground">Top Gaps</h2>
-              <ul className="flex flex-col gap-1">
-                {report.topGaps.map((s) => (
-                  <li key={s.stageLabel} className="text-sm text-foreground">
-                    {s.stageLabel} — {s.level.toFixed(1)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
-
-        {/* Traffic Light Dashboard */}
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Traffic Light Dashboard</h2>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-            {report.stages.map((stage) => (
-              <div
-                key={stage.stageId}
-                className={`rounded-lg border p-4 ${trafficLightClasses(stage.trafficLight)}`}
-              >
-                <p className="text-sm font-medium">{stage.label}</p>
-                <p className="text-2xl font-bold">{formatLevel(stage.level)}</p>
-                <p className="text-xs">{stage.levelLabel ?? "No data"}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Maturity by Stage */}
+        <StageLevelChart stages={report.stages} />
 
         {/* Foundation & Governance status */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
