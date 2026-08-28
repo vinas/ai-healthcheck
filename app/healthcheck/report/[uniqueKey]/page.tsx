@@ -7,24 +7,10 @@ import { buttonVariants } from "@/components/ui/button";
 import { computeTrafficLight, type TrafficLight } from "@/lib/scoring";
 import { loadNarrativeContext } from "@/lib/narrative-lookup";
 import { statusClasses } from "@/lib/utils";
-import { StageLevelChart } from "@/components/report/stage-level-chart";
-
-function trafficLightClasses(light: TrafficLight | null): string {
-  switch (light) {
-    case "RED":
-      return statusClasses("bad");
-    case "YELLOW":
-      return statusClasses("warn");
-    case "GREEN":
-      return statusClasses("good");
-    default:
-      return "border-border bg-muted/30 text-muted-foreground";
-  }
-}
-
-function formatLevel(level: number | null): string {
-  return level == null ? "—" : level.toFixed(1);
-}
+import { StageLevelBar } from "@/components/report/stage-level-bar";
+import { TopStrengthsGaps } from "@/components/report/top-strengths-gaps";
+import { TrafficLightDashboard } from "@/components/report/traffic-light-dashboard";
+import { formatLevel, trafficLightClasses } from "@/components/report/format";
 
 function trafficLightWord(light: TrafficLight): string {
   switch (light) {
@@ -158,8 +144,11 @@ export default async function ReportPage({
           )}
         </div>
 
-        {/* Maturity by Stage */}
-        <StageLevelChart stages={report.stages} />
+        {/* Top strengths / gaps */}
+        <TopStrengthsGaps topStrengths={report.topStrengths} topGaps={report.topGaps} />
+
+        {/* Traffic Light Dashboard */}
+        <TrafficLightDashboard stages={report.stages} />
 
         {/* Foundation & Governance status */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -233,18 +222,16 @@ export default async function ReportPage({
 
         {/* Stage detail */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Stage Detail</h2>
+          <h2 className="mb-4 text-lg font-semibold text-foreground">Stages&apos; Details</h2>
           <div className="flex flex-col gap-4">
             {report.stages.map((stage) => (
               <div key={stage.stageId} className="rounded-lg border border-border p-4">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <h3 className="text-base font-semibold text-foreground">{stage.label}</h3>
-                  <span
-                    className={`rounded-md px-2 py-1 text-xs font-medium ${trafficLightClasses(stage.trafficLight)}`}
-                  >
-                    {formatLevel(stage.level)} · {stage.levelLabel ?? "No data"}
-                  </span>
-                </div>
+                <h3 className="text-base font-semibold text-foreground">{stage.label}</h3>
+                <StageLevelBar
+                  level={stage.level}
+                  levelLabel={stage.levelLabel}
+                  trafficLight={stage.trafficLight}
+                />
                 {stage.questions.length > 0 && (
                   <ul className="mt-3 flex flex-col gap-2">
                     {stage.questions.map((q, i) => (
