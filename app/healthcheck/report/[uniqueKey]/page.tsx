@@ -4,24 +4,13 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Sparkles, Map, Compass } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { computeTrafficLight, type TrafficLight } from "@/lib/scoring";
 import { loadNarrativeContext } from "@/lib/narrative-lookup";
 import { statusClasses } from "@/lib/utils";
 import { StageLevelBar } from "@/components/report/stage-level-bar";
+import { OverallMaturityGauge } from "@/components/report/overall-maturity-gauge";
 import { TopStrengthsGaps } from "@/components/report/top-strengths-gaps";
 import { TrafficLightDashboard } from "@/components/report/traffic-light-dashboard";
-import { formatLevel, trafficLightClasses } from "@/components/report/format";
-
-function trafficLightWord(light: TrafficLight): string {
-  switch (light) {
-    case "RED":
-      return "🔴 Red";
-    case "YELLOW":
-      return "🟡 Yellow";
-    case "GREEN":
-      return "🟢 Green";
-  }
-}
+import { formatLevel } from "@/components/report/format";
 
 function effortClasses(effort: string): string {
   switch (effort) {
@@ -84,7 +73,6 @@ export default async function ReportPage({
 
   const { clientKey, report } = context;
   const narrative = clientKey.narrative;
-  const overallTrafficLight = report.overallLevel == null ? null : computeTrafficLight(report.overallLevel);
 
   const stageInterpretations = (narrative?.stageInterpretations as Record<string, string>) ?? {};
   const roadmap =
@@ -110,20 +98,14 @@ export default async function ReportPage({
         {/* Hero */}
         <div className="flex flex-col gap-2">
           <p className="text-sm text-muted-foreground">Overall Maturity Level</p>
-          <div className="flex items-baseline gap-3">
+          <div className="flex items-center gap-3">
             <span className="text-5xl font-bold text-foreground">
               {formatLevel(report.overallLevel)}
             </span>
             <span className="text-xl font-medium text-foreground">
               {report.overallLevelLabel ?? "Not available"}
             </span>
-            {overallTrafficLight && (
-              <span
-                className={`rounded-full border px-3 py-1 text-sm font-semibold ${trafficLightClasses(overallTrafficLight)}`}
-              >
-                {trafficLightWord(overallTrafficLight)}
-              </span>
-            )}
+            <OverallMaturityGauge level={report.overallLevel} />
           </div>
           {report.overallLevelDescription && (
             <p className="text-base text-muted-foreground">{report.overallLevelDescription}</p>
