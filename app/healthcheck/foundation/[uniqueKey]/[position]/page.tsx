@@ -26,7 +26,7 @@ export default async function FoundationQuestionPage({
       : `/healthcheck/foundation/${uniqueKey}/${position + 1}`;
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Foundation} />
       <QuestionStep
         uniqueKey={uniqueKey}
@@ -36,6 +36,6 @@ export default async function FoundationQuestionPage({
         backHref={backHref}
         nextHref={nextHref}
       />
-    </main>
+    </>
   );
 }

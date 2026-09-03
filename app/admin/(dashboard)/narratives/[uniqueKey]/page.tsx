@@ -8,9 +8,9 @@ export default async function NarrativePage({
 }) {
   const { uniqueKey } = await params;
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AdminHeader />
       <NarrativeEditor uniqueKey={uniqueKey} />
-    </main>
+    </>
   );
 }

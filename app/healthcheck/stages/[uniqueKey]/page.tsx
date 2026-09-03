@@ -22,7 +22,7 @@ export default async function StagesIntroPage({
   });
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Stages} />
       <div className="flex flex-col gap-8 px-8 py-6">
         <FoundationFlagNotice uniqueKey={uniqueKey} foundationQuestions={foundationQuestions} />
@@ -42,6 +42,6 @@ export default async function StagesIntroPage({
         backHref={`/healthcheck/foundation/${uniqueKey}/${foundationQuestionCount}`}
         nextHref={`/healthcheck/stages/${uniqueKey}/${StageId.DemandDefinition}`}
       />
-    </main>
+    </>
   );
 }

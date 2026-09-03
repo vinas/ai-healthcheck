@@ -32,7 +32,7 @@ export default async function StageQuestionPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Stages} />
       <QuestionStep
         uniqueKey={uniqueKey}
@@ -43,6 +43,6 @@ export default async function StageQuestionPage({
         nextHref={nextHref}
         groupLabel={stage.label}
       />
-    </main>
+    </>
   );
 }

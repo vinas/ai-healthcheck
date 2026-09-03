@@ -10,7 +10,7 @@ export default async function AssessmentLandingPage({
   const { uniqueKey } = await params;
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep="introduction" />
       <div className="flex flex-col gap-8 px-8 py-6">
         <StepIntroduction heading="Before you begin">
@@ -33,6 +33,6 @@ export default async function AssessmentLandingPage({
         </StepIntroduction>
       </div>
       <AssessmentFooter nextHref={`/healthcheck/context/${uniqueKey}`} />
-    </main>
+    </>
   );
 }

@@ -15,12 +15,12 @@ export default async function CompletePage({
   });
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Governance} />
       <CompletionStatus
         uniqueKey={uniqueKey}
         backHref={`/healthcheck/governance/${uniqueKey}/${governanceQuestionCount}`}
       />
-    </main>
+    </>
   );
 }

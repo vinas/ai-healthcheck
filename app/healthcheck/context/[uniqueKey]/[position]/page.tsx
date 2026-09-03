@@ -26,7 +26,7 @@ export default async function ContextQuestionPage({
       : `/healthcheck/context/${uniqueKey}/${position + 1}`;
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Context} />
       <QuestionStep
         uniqueKey={uniqueKey}
@@ -36,6 +36,6 @@ export default async function ContextQuestionPage({
         backHref={backHref}
         nextHref={nextHref}
       />
-    </main>
+    </>
   );
 }

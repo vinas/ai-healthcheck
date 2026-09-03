@@ -51,7 +51,7 @@ export default async function ReportPage({
     }
 
     return (
-      <main className="flex min-h-screen flex-col bg-background">
+      <>
         <ReportHeader />
         <div className="flex flex-col gap-4 px-8 py-6">
           <h2 className="text-lg font-semibold text-foreground">Report not available yet</h2>
@@ -64,7 +64,7 @@ export default async function ReportPage({
             </Link>
           </div>
         </div>
-      </main>
+      </>
     );
   }
 
@@ -77,7 +77,7 @@ export default async function ReportPage({
   const narrativePublished = !!narrative?.publishedAt;
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <ReportHeader />
 
       <div className="flex max-w-4xl flex-col gap-10 px-8 pt-6 pb-16">
@@ -273,6 +273,6 @@ export default async function ReportPage({
           </div>
         )}
       </div>
-    </main>
+    </>
   );
 }

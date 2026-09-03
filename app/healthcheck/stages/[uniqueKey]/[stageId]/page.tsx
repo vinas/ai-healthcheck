@@ -54,7 +54,7 @@ export default async function StageIntroPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Stages} />
       <div className="flex flex-col gap-8 px-8 py-6">
         <StepIntroduction heading={stage.label}>
@@ -69,6 +69,6 @@ export default async function StageIntroPage({
         backHref={backHref}
         nextHref={`/healthcheck/stages/${uniqueKey}/${stageIdNum}/1`}
       />
-    </main>
+    </>
   );
 }

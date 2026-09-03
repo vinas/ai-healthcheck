@@ -26,7 +26,7 @@ export default async function GovernanceQuestionPage({
       : `/healthcheck/governance/${uniqueKey}/${position + 1}`;
 
   return (
-    <main className="flex min-h-screen flex-col bg-background">
+    <>
       <AssessmentHeader activeStep={QuestionTypeId.Governance} />
       <QuestionStep
         uniqueKey={uniqueKey}
@@ -36,6 +36,6 @@ export default async function GovernanceQuestionPage({
         backHref={backHref}
         nextHref={nextHref}
       />
-    </main>
+    </>
   );
 }
