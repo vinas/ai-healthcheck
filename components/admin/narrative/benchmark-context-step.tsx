@@ -4,6 +4,7 @@ import type { ContextAnswer } from "@/components/admin/narrative/types";
 import { BENCHMARK_GUIDANCE, computeCalibrationNotes } from "@/lib/narrative-guidance";
 import DraftButton from "@/components/admin/narrative/draft-button";
 import { Textarea } from "@/components/ui/textarea";
+import { QuestionAnswerList } from "@/components/shared/question-answer-list";
 
 type BenchmarkContextStepProps = {
   contextAnswers: ContextAnswer[];
@@ -46,14 +47,7 @@ export default function BenchmarkContextStep({
         {contextAnswers.length === 0 ? (
           <p className="text-muted-foreground">No context answers recorded.</p>
         ) : (
-          <ul className="flex flex-col gap-1.5">
-            {contextAnswers.map((a, i) => (
-              <li key={i}>
-                <p className="text-foreground">{a.questionText}</p>
-                <p className="text-muted-foreground">→ {a.optionText}</p>
-              </li>
-            ))}
-          </ul>
+          <QuestionAnswerList questions={contextAnswers} className="flex flex-col gap-1.5" />
         )}
       </div>
       <div>

@@ -12,6 +12,7 @@ import { TopStrengthsGaps } from "@/components/report/top-strengths-gaps";
 import { TrafficLightDashboard } from "@/components/report/traffic-light-dashboard";
 import { formatLevel } from "@/components/report/format";
 import { ReportHeader } from "@/components/report/report-header";
+import { QuestionAnswerList } from "@/components/shared/question-answer-list";
 
 function effortClasses(effort: string): string {
   switch (effort) {
@@ -145,16 +146,7 @@ export default async function ReportPage({
                 ⚠️ {report.foundation.flagText}
               </p>
             )}
-            {report.foundation.questions.length > 0 && (
-              <ul className="mt-3 flex flex-col gap-2">
-                {report.foundation.questions.map((q, i) => (
-                  <li key={i} className="text-sm">
-                    <p className="text-foreground">{q.questionText}</p>
-                    <p className="text-muted-foreground">→ {q.optionText}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <QuestionAnswerList questions={report.foundation.questions} />
           </div>
           <div className="rounded-lg border border-border p-4">
             <h3 className="text-base font-semibold text-foreground">Governance</h3>
@@ -167,16 +159,7 @@ export default async function ReportPage({
                 {report.governance.levelDescription}
               </p>
             )}
-            {report.governance.questions.length > 0 && (
-              <ul className="mt-3 flex flex-col gap-2">
-                {report.governance.questions.map((q, i) => (
-                  <li key={i} className="text-sm">
-                    <p className="text-foreground">{q.questionText}</p>
-                    <p className="text-muted-foreground">→ {q.optionText}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
+            <QuestionAnswerList questions={report.governance.questions} />
           </div>
         </div>
 
@@ -207,16 +190,7 @@ export default async function ReportPage({
                   levelLabel={stage.levelLabel}
                   trafficLight={stage.trafficLight}
                 />
-                {stage.questions.length > 0 && (
-                  <ul className="mt-3 flex flex-col gap-2">
-                    {stage.questions.map((q, i) => (
-                      <li key={i} className="text-sm">
-                        <p className="text-foreground">{q.questionText}</p>
-                        <p className="text-muted-foreground">→ {q.optionText}</p>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <QuestionAnswerList questions={stage.questions} />
                 {narrativePublished && stageInterpretations[String(stage.stageId)] && (
                   <div className="mt-3">
                     <NarrativeCallout label="Assessment Notes">

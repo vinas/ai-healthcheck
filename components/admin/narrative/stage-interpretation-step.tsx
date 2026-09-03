@@ -4,6 +4,7 @@ import type { StageResult } from "@/lib/scoring";
 import { STAGE_GUIDANCE } from "@/lib/narrative-guidance";
 import DraftButton from "@/components/admin/narrative/draft-button";
 import { Textarea } from "@/components/ui/textarea";
+import { QuestionAnswerList } from "@/components/shared/question-answer-list";
 
 type StageInterpretationStepProps = {
   stage: StageResult;
@@ -44,16 +45,7 @@ export default function StageInterpretationStep({
           Level: {stage.level ?? "—"} · {stage.levelLabel ?? "No data"}
           {stage.trafficLight ? ` · ${stage.trafficLight}` : ""}
         </p>
-        {stage.questions.length > 0 && (
-          <ul className="mt-2 flex flex-col gap-1.5">
-            {stage.questions.map((q, i) => (
-              <li key={i}>
-                <p className="text-foreground">{q.questionText}</p>
-                <p className="text-muted-foreground">→ {q.optionText}</p>
-              </li>
-            ))}
-          </ul>
-        )}
+        <QuestionAnswerList questions={stage.questions} className="mt-2 flex flex-col gap-1.5" />
       </div>
       <div>
         <DraftButton onDraft={onDraft} drafting={drafting} />
