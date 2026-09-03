@@ -11,6 +11,7 @@ import { OverallMaturityGauge } from "@/components/report/overall-maturity-gauge
 import { TopStrengthsGaps } from "@/components/report/top-strengths-gaps";
 import { TrafficLightDashboard } from "@/components/report/traffic-light-dashboard";
 import { formatLevel } from "@/components/report/format";
+import { ReportHeader } from "@/components/report/report-header";
 
 function effortClasses(effort: string): string {
   switch (effort) {
@@ -51,11 +52,7 @@ export default async function ReportPage({
 
     return (
       <main className="flex min-h-screen flex-col bg-background">
-        <header className="border-b border-border px-8 py-4">
-          <h1 className="text-lg font-semibold text-foreground">
-            AI-Native Software Development Maturity Assessment Guide
-          </h1>
-        </header>
+        <ReportHeader />
         <div className="flex flex-col gap-4 px-8 py-6">
           <h2 className="text-lg font-semibold text-foreground">Report not available yet</h2>
           <p className="text-base text-foreground">
@@ -81,11 +78,7 @@ export default async function ReportPage({
 
   return (
     <main className="flex min-h-screen flex-col bg-background">
-      <header className="border-b border-border px-8 py-4">
-        <h1 className="text-lg font-semibold text-foreground">
-          AI-Native Software Development Maturity Assessment Guide
-        </h1>
-      </header>
+      <ReportHeader />
 
       <div className="flex max-w-4xl flex-col gap-10 px-8 pt-6 pb-16">
         {!narrativePublished && (
