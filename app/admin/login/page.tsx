@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -43,13 +44,7 @@ export default function LoginPage() {
           Admin Login
         </h1>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
-            >
-              Email
-            </label>
+          <FormField label="Email" htmlFor="email">
             <Input
               id="email"
               type="email"
@@ -58,14 +53,8 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-foreground"
-            >
-              Password
-            </label>
+          </FormField>
+          <FormField label="Password" htmlFor="password">
             <div className="relative">
               <Input
                 id="password"
@@ -85,7 +74,7 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-          </div>
+          </FormField>
           <Button type="submit" className="mt-2 w-full" disabled={loading}>
             {loading ? "Logging in…" : "Login"}
           </Button>

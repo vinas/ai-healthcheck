@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { FormField } from "@/components/ui/form-field";
 import { QuestionTypeId } from "@/lib/question-taxonomy";
 
 export type Lookup = { id: number; label: string };
@@ -179,10 +180,11 @@ export default function QuestionForm({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor={`question-${mode}`} className="text-sm font-medium text-foreground">
-          Question <span className="text-destructive">*</span>
-        </label>
+      <FormField
+        label={<>Question <span className="text-destructive">*</span></>}
+        htmlFor={`question-${mode}`}
+        error={questionError}
+      >
         <Textarea
           id={`question-${mode}`}
           placeholder="How is AI currently used when..."
@@ -192,14 +194,13 @@ export default function QuestionForm({
             setQuestionError("");
           }}
         />
-        {questionError && <p className="text-sm text-destructive">{questionError}</p>}
-      </div>
+      </FormField>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-foreground">
-            Question type <span className="text-destructive">*</span>
-          </label>
+        <FormField
+          label={<>Question type <span className="text-destructive">*</span></>}
+          error={questionTypeError}
+        >
           <Select
             value={questionTypeId === "" ? null : questionTypeId}
             onValueChange={(v: number | null) => handleQuestionTypeChange(v ?? "")}
@@ -217,14 +218,13 @@ export default function QuestionForm({
               ))}
             </SelectContent>
           </Select>
-          {questionTypeError && <p className="text-sm text-destructive">{questionTypeError}</p>}
-        </div>
+        </FormField>
 
         {isStagesType && (
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-foreground">
-              Stage <span className="text-destructive">*</span>
-            </label>
+          <FormField
+            label={<>Stage <span className="text-destructive">*</span></>}
+            error={stageError}
+          >
             <Select
               value={stageId === "" ? null : stageId}
               onValueChange={(v: number | null) => {
@@ -245,15 +245,16 @@ export default function QuestionForm({
                 ))}
               </SelectContent>
             </Select>
-            {stageError && <p className="text-sm text-destructive">{stageError}</p>}
-          </div>
+          </FormField>
         )}
       </div>
 
-      <div className="flex flex-col gap-2">
-        <span className="text-sm font-medium text-foreground">
-          Options <span className="text-destructive">*</span>
-        </span>
+      <FormField
+        label={<>Options <span className="text-destructive">*</span></>}
+        as="span"
+        gap="gap-2"
+        error={optionsError}
+      >
         <div className="flex flex-col gap-2">
           {options.map((opt, i) => (
             <div key={opt.id ?? `new-${i}`} className="flex items-center gap-2">
@@ -287,8 +288,7 @@ export default function QuestionForm({
             <Plus size={14} /> Add option
           </Button>
         </div>
-        {optionsError && <p className="text-sm text-destructive">{optionsError}</p>}
-      </div>
+      </FormField>
 
       <div className="flex justify-end gap-2">
         {mode === "edit" && (

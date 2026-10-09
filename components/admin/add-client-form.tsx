@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/form-field";
 import { Collapsible, CollapsibleTrigger, CollapsiblePanel } from "@/components/ui/collapsible";
 
 export default function AddClientForm() {
@@ -82,10 +83,11 @@ export default function AddClientForm() {
           onSubmit={handleSubmit}
           className="flex flex-col gap-4 border-t border-border px-4 py-4"
         >
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="name" className="text-sm font-medium text-foreground">
-              Company name <span className="text-destructive">*</span>
-            </label>
+          <FormField
+            label={<>Company name <span className="text-destructive">*</span></>}
+            htmlFor="name"
+            error={nameError}
+          >
             <Input
               id="name"
               type="text"
@@ -93,18 +95,9 @@ export default function AddClientForm() {
               value={name}
               onChange={(e) => { setName(e.target.value); setNameError(""); }}
             />
-            {nameError && (
-              <p className="text-sm text-destructive">{nameError}</p>
-            )}
-          </div>
+          </FormField>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="contactPersonName"
-              className="text-sm font-medium text-foreground"
-            >
-              Contact name
-            </label>
+          <FormField label="Contact name" htmlFor="contactPersonName">
             <Input
               id="contactPersonName"
               type="text"
@@ -112,18 +105,19 @@ export default function AddClientForm() {
               value={contactPersonName}
               onChange={(e) => setContactPersonName(e.target.value)}
             />
-          </div>
+          </FormField>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="contactPersonEmail"
-              className="text-sm font-medium text-foreground"
-            >
-              Contact email{" "}
-              <span className="text-xs text-muted-foreground">
-                (at least one of email or phone required)
-              </span>
-            </label>
+          <FormField
+            label={
+              <>
+                Contact email{" "}
+                <span className="text-xs text-muted-foreground">
+                  (at least one of email or phone required)
+                </span>
+              </>
+            }
+            htmlFor="contactPersonEmail"
+          >
             <Input
               id="contactPersonEmail"
               type="email"
@@ -131,15 +125,9 @@ export default function AddClientForm() {
               value={contactPersonEmail}
               onChange={(e) => { setContactPersonEmail(e.target.value); setContactError(""); }}
             />
-          </div>
+          </FormField>
 
-          <div className="flex flex-col gap-1.5">
-            <label
-              htmlFor="contactPersonPhone"
-              className="text-sm font-medium text-foreground"
-            >
-              Contact phone
-            </label>
+          <FormField label="Contact phone" htmlFor="contactPersonPhone" error={contactError}>
             <Input
               id="contactPersonPhone"
               type="tel"
@@ -147,10 +135,7 @@ export default function AddClientForm() {
               value={contactPersonPhone}
               onChange={(e) => { setContactPersonPhone(e.target.value); setContactError(""); }}
             />
-            {contactError && (
-              <p className="text-sm text-destructive">{contactError}</p>
-            )}
-          </div>
+          </FormField>
 
           <div className="flex justify-end">
             <Button type="submit" disabled={loading}>
