@@ -20,13 +20,13 @@ Prerequisites: Node.js, npm, and Docker Compose.
 	docker compose up -d
 	```
 
-3. Create `.env.local` in the project root with the database connection:
+3. Create `.env` in the project root from the example file:
 
-	```env
-	DATABASE_URL="postgresql://ai_healthcheck:password@localhost:5432/ai_healthcheck?schema=public"
+	```bash
+	cp .env.example .env
 	```
 
-	Add an `ANTHROPIC_API_KEY` if you want to use AI-assisted narrative drafting.
+	Set a real `JWT_SECRET`, and add an `ANTHROPIC_API_KEY` if you want to use AI-assisted narrative drafting.
 
 4. Apply database migrations and load the starter assessment data:
 
