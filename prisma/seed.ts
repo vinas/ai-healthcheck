@@ -566,11 +566,11 @@ async function seedQuestionnaire() {
 
 async function main() {
   await prisma.user.upsert({
-    where: { email: "vinas.deandrade@compile.fi" },
+    where: { email: "admin@example.com" },
     update: {},
     create: {
       name: "Vinas",
-      email: "vinas.deandrade@compile.fi",
+      email: "admin@example.com",
       password: await bcrypt.hash("password", 10),
     },
   });
